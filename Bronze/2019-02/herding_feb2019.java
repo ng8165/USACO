@@ -1,4 +1,6 @@
 // Sleepy Cow Herding - USACO Bronze February 2019 (http://www.usaco.org/index.php?page=viewproblem2&cpid=915)
+// This problem was mostly completed on November 1, 2020, in 24 minutes, with 9/10 test cases passed (second try)
+// This problem was completed on November 7, 2020, during review, with all 10/10 test cases passed (review)
 
 import java.io.File;
 import java.io.FileWriter;
@@ -7,25 +9,23 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class L14_herding {
-    public static int herding_min(int[] cowLocations) {
-        if ((cowLocations[1]-cowLocations[0] == 1) && (cowLocations[2]-cowLocations[1] == 1)) {
-            return 0;
-        } else if ((cowLocations[1]-cowLocations[0] == 2) || (cowLocations[2]-cowLocations[1] == 2)) {
-            return 1;
+public class herding_feb2019 {
+    static int[] cows = new int[3];
+
+    public static int[] herding() {
+        Arrays.sort(cows);
+
+        if ((cows[2] - cows[1] == 1) && (cows[1] - cows[0] == 1)) {
+            return new int[] {0, 0};
+        }
+
+        int maxMoves = Math.max(cows[2] - cows[1], cows[1] - cows[0]) - 1;
+
+        if ((cows[2] - cows[1] == 2) || (cows[1] - cows[0] == 2)) {
+            return new int[] {1, maxMoves};
         } else {
-            return 2;
+            return new int[] {2, maxMoves};
         }
-    }
-
-    public static int herding_max(int[] cowLocations) {
-        int maxCowMoves = 0;
-        
-        for (int i=0; i<2; i++) {
-            maxCowMoves = Math.max(maxCowMoves, (cowLocations[i+1]-cowLocations[i]-1));
-        }
-
-        return maxCowMoves;
     }
 
     public static void main(String[] args) throws IOException {
@@ -33,16 +33,17 @@ public class L14_herding {
         String problemName = "herding";
         Scanner sc = new Scanner(new File(problemName + ".in"));
 
-        int[] cowLocations = new int[3];
-        for (int i=0; i<3; i++) {
-            cowLocations[i] = sc.nextInt();
-        }
-        Arrays.sort(cowLocations);
+        cows[0] = sc.nextInt();
+        cows[1] = sc.nextInt();
+        cows[2] = sc.nextInt();
 
-        // algorithm and output
+        // algorithm
+        int[] cowMoves = herding();
+
+        // output
         PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));
-        out.println(herding_min(cowLocations));
-        out.println(herding_max(cowLocations));
+        out.println(cowMoves[0]);
+        out.println(cowMoves[1]);
         out.close();
     }
 }
