@@ -1,94 +1,84 @@
 // Blocked Billboard - USACO Bronze December 2017 (http://www.usaco.org/index.php?page=viewproblem2&cpid=759)
+// This problem was partially completed on Sunday, September 20, 2020, in 1 hour, with 7/10 test cases passed (second try)
+// This problem was beautifully completed on Saturday, September 26, 2020, during review, with all 10/10 test cases passed
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Scanner;
-import java.io.File;
 
-public class L2_billboard {
+public class billboard_dec2017 {
+    static int[] b1_ll = new int[2];
+    static int[] b1_ur = new int[2];
+    static int[] b2_ll = new int[2];
+    static int[] b2_ur = new int[2];
+    static int[] tr_ll = new int[2];
+    static int[] tr_ur = new int[2];
 
-    public static int overlapArea(int r1_x1, int r1_y1, int r1_x2, int r1_y2, int r2_x1, int r2_y1, int r2_x2 ,int r2_y2) {
-        int xSpan = Math.max(r1_x2, r2_x2) - Math.min(r1_x1, r2_x1);
-        int xSum = (r1_x2-r1_x1) + (r2_x2-r2_x1);
-        int xOverlapSide=0;
+    public static int billboard() {
+        int remainingArea = 0;
 
-        if (xSpan < xSum) {
-            xOverlapSide = xSum - xSpan;
-        }
+        // find b1 and b2 areas
+        int b1_area = (b1_ur[0] - b1_ll[0]) * (b1_ur[1] - b1_ll[1]);
+        int b2_area = (b2_ur[0] - b2_ll[0]) * (b2_ur[1] - b2_ll[1]);
 
-        int ySpan = Math.max(r1_y2, r2_y2) - Math.min(r1_y1, r2_y1);
-        int ySum = (r1_y2-r1_y1) + (r2_y2-r2_y1);
-        int yOverlapSide=0;
-        if (ySpan < ySum) {
-            yOverlapSide = ySum - ySpan;
-        }
+        // determine if b1 and tr overlap
+        remainingArea += (b1_area - bill_tr_overlap(b1_ll, b1_ur));
 
-        return xOverlapSide * yOverlapSide;
+        // determine if b2 and tr overlap
+        remainingArea += (b2_area - bill_tr_overlap(b2_ll, b2_ur));
+
+        return remainingArea;
+
     }
-    public static int billboard(int b1_x1, int b1_y1, int b1_x2, int b1_y2, int b2_x1, int b2_y1, int b2_x2, int b2_y2, int tr_x1, int tr_y1, int tr_x2, int tr_y2) {
-        int b1_area = (b1_x2 - b1_x1) * (b1_y2 - b1_y1) - overlapArea(b1_x1, b1_y1, b1_x2, b1_y2, tr_x1, tr_y1, tr_x2, tr_y2);
-        int b2_area = (b2_x2 - b2_x1) * (b2_y2 - b2_y1) - overlapArea(b2_x1, b2_y1, b2_x2, b2_y2, tr_x1, tr_y1, tr_x2, tr_y2);
-        return b1_area + b2_area;
+
+    public static int bill_tr_overlap(int[] bill_ll, int[] bill_ur) {
+        int bill_length = (bill_ur[0] - bill_ll[0]);
+        int bill_width = (bill_ur[1] - bill_ll[1]);
+        int tr_length = (tr_ur[0] - tr_ll[0]);
+        int tr_width = (tr_ur[1] - tr_ll[1]);
+
+        int horizontalSpan = (Math.max(bill_ur[0], tr_ur[0]) - Math.min(bill_ll[0], tr_ll[0]));
+        int verticalSpan = (Math.max(bill_ur[1], tr_ur[1]) - Math.min(bill_ll[1], tr_ll[1]));
+        int horizontalOverlap = 0;
+        int verticalOverlap = 0;
+
+        if (horizontalSpan < (bill_length + tr_length)) {
+            horizontalOverlap = (bill_length + tr_length) - horizontalSpan;
+        }
+
+        if (verticalSpan < (bill_width + tr_width)) {
+            verticalOverlap = (bill_width + tr_width) - verticalSpan;
+        }
+
+        return horizontalOverlap * verticalOverlap;
     }
 
     public static void main(String[] args) throws IOException {
         // input
-        String problemName = "billboard"; // change the name of billboard
-        Scanner sc =  new Scanner(new File(problemName + ".in"));
-        int b1_x1 = sc.nextInt();
-        int b1_y1 = sc.nextInt();
-        int b1_x2 = sc.nextInt();
-        int b1_y2 = sc.nextInt();
-        int b2_x1 = sc.nextInt();
-        int b2_y1 = sc.nextInt();
-        int b2_x2 = sc.nextInt();
-        int b2_y2 = sc.nextInt();
-        int tr_x1 = sc.nextInt();
-        int tr_y1 = sc.nextInt();
-        int tr_x2 = sc.nextInt();
-        int tr_y2 = sc.nextInt();
+        String problemName = "billboard";
+        Scanner sc = new Scanner(new File(problemName + ".in"));
+
+        b1_ll[0] = sc.nextInt();
+        b1_ll[1] = sc.nextInt();
+        b1_ur[0] = sc.nextInt();
+        b1_ur[1] = sc.nextInt();
+        b2_ll[0] = sc.nextInt();
+        b2_ll[1] = sc.nextInt();
+        b2_ur[0] = sc.nextInt();
+        b2_ur[1] = sc.nextInt();
+        tr_ll[0] = sc.nextInt();
+        tr_ll[1] = sc.nextInt();
+        tr_ur[0] = sc.nextInt();
+        tr_ur[1] = sc.nextInt();
 
         // algorithm
-        int area = billboard(b1_x1, b1_y1, b1_x2, b1_y2, b2_x1, b2_y1, b2_x2, b2_y2, tr_x1, tr_y1, tr_x2, tr_y2);
+        int billboardArea = billboard();
 
-        //output
+        // output
         PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));
-        out.println(area);
+        out.println(billboardArea);
         out.close();
     }
 }
-
-/*
-boolean overlap_b1_x = false;
-boolean overlap_b1_y = false;
-boolean overlap_b2_x = false;
-boolean overlap_b2_y = false;
-boolean overlap_b1 = false;
-boolean overlap_b2 = false;
-
-
-if ((max(b1_x2, tr_x2)-min(b1_x1, tr_x1)) < (b1_x2-b1_x1+tr_x2-tr_x1))
-    overlap_b1_x = true;
-if ((max(b1_y2, tr_y2)-min(b1_y1, tr_y1)) < (b1_y2-b1_y1+tr_y2-tr_y1))
-    overlap_b1_y = true;
-if ((max(b2_x2, tr_x2)-min(b2_x1, tr_x1)) < (b2_x2-b2_x1+tr_x2-tr_x1))
-    overlap_b2_x = true;
-if ((max(b2_y2, tr_y2)-min(b2_y1, tr_y1)) < (b2_y2-b2_y1+tr_y2-tr_y1))
-    overlap_b2_y = true;
-if (overlap_b1_x == true && overlap_b1_y == true)
-    overlap_b1 = true;
-if (overlap_b2_x == true && overlap_b2_y == true)
-    overlap_b2 = true;
-
- */ // Pseudocode
-/*
--5,2 ,-3, 3,-2, 1, -1, 5
-0
-
-2,2,4,3,3,1,4,4
-1
-
--4,-5, 3, -1,1, -7, 4, -3
-4
- */ // Test Cases for overlapArea
