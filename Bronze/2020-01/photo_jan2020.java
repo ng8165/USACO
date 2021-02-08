@@ -1,37 +1,48 @@
-// Photoshoot - USACO Bronze January 2020 (http://www.usaco.org/index.php?page=viewproblem2&cpid=988)
-// This problem was not completed on November 22, 2020, in 27 minutes, with 1/10 test cases passed (first try)
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.Scanner;
 
-public class photo_jan2020 {
+public class photo_bronzebooster {
     static int numCows;
     static int[] bessieOrder;
 
     public static int[] photo() {
-        int[][] potentialOrders = new int[bessieOrder[0]-1][numCows];
-        for (int i=1; i<bessieOrder[0]; i++) {
-            potentialOrders[i-1][0] = i;
+        int[] currOrder = new int[numCows];
+        startLoop: for (int i=1; i<numCows; i++) {
+            // generate a potential order
+            currOrder[0] = i;
+            int[] temp = new int[numCows];
+            temp[i-1]++;
+
             for (int j=1; j<numCows; j++) {
-                potentialOrders[i-1][j] = bessieOrder[j-1] - potentialOrders[i-1][j-1];
+                currOrder[j] = bessieOrder[j-1] - currOrder[j-1];
+                if (currOrder[j] < 1 || currOrder[j] > numCows) {
+                    continue startLoop;
+                }
+                temp[currOrder[j]-1]++;
+            }
+
+            // see if the order is valid
+            boolean noZero = true;
+            for (int j=0; j<numCows; j++) {
+                if (temp[j] == 0) {
+                    noZero = false;
+                    break;
+                }
+            }
+            if (noZero) {
+                return currOrder;
             }
         }
 
-        for (int i=0; i<3; i++) {
-            System.out.println(Arrays.toString(potentialOrders[i]));
-        }
-
-        return potentialOrders[potentialOrders.length-1];
+        return new int[] {0}; // avoid compilation errors
     }
 
     public static void main(String[] args) throws IOException {
         // input
-        String problemName = "photo";
-        Scanner sc = new Scanner(new File(problemName + ".in"));
+        Scanner sc = new Scanner(new File("photo.in"));
 
         numCows = sc.nextInt();
         bessieOrder = new int[numCows-1];
@@ -40,14 +51,14 @@ public class photo_jan2020 {
         }
 
         // algorithm
-        int[] originalOrder = photo();
+        int[] order = photo();
 
         // output
-        PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));
+        PrintWriter out = new PrintWriter(new FileWriter("photo.out"));
         for (int i=0; i<numCows-1; i++) {
-            out.print(originalOrder[i] + " ");
+            out.print(order[i] + " ");
         }
-        out.print(originalOrder[originalOrder.length-1]);
+        out.println(order[numCows-1]);
         out.close();
     }
 }
