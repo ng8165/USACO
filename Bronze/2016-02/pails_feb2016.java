@@ -1,4 +1,5 @@
 // Milk Pails - USACO Bronze February 2016 (http://www.usaco.org/index.php?page=viewproblem2&cpid=615)
+// This problem was completed on November 23, 2020, in 20 minutes, with all 10/10 test cases passed (second try)
 
 import java.io.File;
 import java.io.FileWriter;
@@ -6,31 +7,42 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
-public class L4_pails {
-    public static int pails(int x, int y, int m) {
-        int maxMilk = 0;
-        for (int i=0; i<=(m/x); i++) {
-            int yPails = (m - x * i)/y;
-            int milkAmount = x * i + y * yPails;
-            maxMilk = Math.max(maxMilk, milkAmount);
+public class pails_feb2016 {
+    static int smallPail;
+    static int mediumPail;
+    static int largePail;
+
+    public static int pails() {
+        int maxPailAmount = 0;
+
+        for (int smallPailAmount=0; smallPailAmount<=(largePail/smallPail); smallPailAmount++) {
+            // find how many medium pails can fit in the remaining space
+            int remainingAmount = largePail - (smallPail * smallPailAmount);
+            int mediumPailAmount = remainingAmount / mediumPail;
+
+            int finalAmount = (smallPailAmount*smallPail) + (mediumPailAmount*mediumPail);
+            maxPailAmount = Math.max(maxPailAmount, finalAmount);
+            //System.out.println(smallPailAmount + "*" + smallPail + " + " + mediumPailAmount + "*" + mediumPail + " = " + finalAmount);
         }
-        return maxMilk;
+
+        return maxPailAmount;
     }
 
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws IOException {
         // input
         String problemName = "pails";
         Scanner sc = new Scanner(new File(problemName + ".in"));
-        int x = sc.nextInt(); // X pail capacity
-        int y = sc.nextInt(); // Y pail capacity
-        int m = sc.nextInt(); // what the person wants
+
+        smallPail = sc.nextInt();
+        mediumPail = sc.nextInt();
+        largePail = sc.nextInt();
 
         // algorithm
-        int maxMilk = pails(x, y, m);
+        int maxFillAmount = pails();
 
-        //output
+        // output
         PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));
-        out.println(maxMilk);
+        out.println(maxFillAmount);
         out.close();
     }
 }

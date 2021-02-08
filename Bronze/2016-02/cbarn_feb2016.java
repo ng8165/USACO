@@ -1,4 +1,5 @@
 // Circular Barn - USACO Bronze February 2016 (http://www.usaco.org/index.php?page=viewproblem2&cpid=616)
+// This problem was completed on November 23, 2020, in 17 minutes, with all 10/10 test cases passed (second try)
 
 import java.io.File;
 import java.io.FileWriter;
@@ -6,55 +7,48 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
-public class L5_cbarn {
-    public static int cbarn(int numRooms, int[] roomCapacities) {
-        // the plan: brute force - try from all the rooms, find the min distance
-        int minDistance = Integer.MAX_VALUE;
-        int totalCows = 0;
-        for (int i=0; i<numRooms; i++) {
-            totalCows += roomCapacities[i];
-        }
+public class cbarn_feb2016 {
+    static int numRooms;
+    static int[] roomSizes;
+    static int numCows = 0;
 
-        for (int startRoom=0; startRoom<numRooms; startRoom++) {
-            int currDistance = 0;
-            int cowsStayingInRooms = 0;
-            int currRoom;
+    public static int cbarn() {
+        int minWalkingDistance = Integer.MAX_VALUE;
 
-            for (int i=0; i<numRooms; i++) {
-                currRoom = (startRoom+i) % numRooms; // update current room
+        for (int startingDoorIdx=0; startingDoorIdx<numRooms; startingDoorIdx++) {
+            int remainingCows = numCows;
+            int walkingDistance = 0;
 
-                cowsStayingInRooms += roomCapacities[currRoom];
-                currDistance += (totalCows - cowsStayingInRooms);
+            for (int i=startingDoorIdx; i<numRooms+startingDoorIdx; i++) {
+                int currRoomSize = roomSizes[i%numRooms];
+                remainingCows -= currRoomSize;
+                walkingDistance += remainingCows;
             }
 
-            minDistance = Math.min(minDistance, currDistance);
+            minWalkingDistance = Math.min(minWalkingDistance, walkingDistance);
         }
 
-        return minDistance;
+        return minWalkingDistance;
     }
 
     public static void main(String[] args) throws IOException {
         // input
         String problemName = "cbarn";
         Scanner sc = new Scanner(new File(problemName + ".in"));
-        int numRooms = sc.nextInt();
-        int[] roomCapacities = new int[numRooms];
+
+        numRooms = sc.nextInt();
+        roomSizes = new int[numRooms];
         for (int i=0; i<numRooms; i++) {
-            roomCapacities[i] = sc.nextInt();
+            roomSizes[i] = sc.nextInt();
+            numCows += roomSizes[i];
         }
-        /*
-        System.out.println(numRooms);
-        for (int i=0; i<numRooms; i++) {
-            System.out.print(roomCapacities[i] + " ");
-        }
-        */
 
         // algorithm
-        int distance = cbarn(numRooms, roomCapacities);
+        int minWalkingDistance = cbarn();
 
-        //output
+        // output
         PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));
-        out.println(distance);
+        out.println(minWalkingDistance);
         out.close();
     }
 }
