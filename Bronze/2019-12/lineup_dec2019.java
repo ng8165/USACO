@@ -1,126 +1,100 @@
-// Livestock Lineup - USACO Bronze December 2019 (http://www.usaco.org/index.php?page=viewproblem2&cpid=965)
-// This problem was not completed on November 15, 2020, in 1 hour and 48 min, with 1/10 test cases passed (first try)
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Scanner;
 
-public class lineup_dec2019 {
-    static String[] cows = new String[] {"Bessie", "Buttercup", "Belinda", "Beatrice", "Bella", "Blue", "Betsy", "Sue"};
+public class lineup_bronzebooster {
     static int numConstraints;
     static String[][] constraints;
 
+    static String[] cows = new String[] {"Beatrice", "Belinda", "Bella", "Bessie", "Betsy", "Blue", "Buttercup", "Sue"};
+
     public static String[] lineup() {
-        ArrayList<String> finalCows = new ArrayList<>();
-        ArrayList<String> constraintCows = new ArrayList<>();
-        ArrayList<String> constraintCows2 = determineConstraintCows();
+        String[] minOrder = new String[8];
+        Arrays.fill(minOrder, "|");
 
-        for (int i=0; i<numConstraints; i++) {
-            constraintCows.add(constraints[i][0]);
-        }
-
-        for (int i=0; i<constraintCows.size(); i++) {
-            String currCow = constraintCows.get(i);
-
-            if (isCowConstraintDuplicate(currCow)) {
-                String[] cowPairs = findCowPairs(currCow);
-                Arrays.sort(cowPairs);
-                finalCows.add(cowPairs[0] + "-" + currCow + "-" + cowPairs[1]);
-            } else {
-                String[] cowPairs = constraints[i];
-                Arrays.sort(cowPairs);
-                finalCows.add(cowPairs[0] + "-" + cowPairs[1]);
-            }
-        }
-
-        for (int i=0; i<8; i++) {
-            if (isCowNotConstraint(cows[i], constraintCows2)) {
-                finalCows.add(cows[i]);
-            }
-        }
-
-        Collections.sort(finalCows);
-        String[] validLineup = new String[8];
-        for (int i=0; i<8; i++) {
-            validLineup[i] = "";
-        }
-
-        for (int i=0, idx=0; i<finalCows.size(); i++) {
-            if (!finalCows.get(i).contains("-")) {
-                validLineup[idx++] = finalCows.get(i);
-            } else {
-                int searchFrom = 0;
-                while (true) {
-                    int temp = finalCows.get(i).indexOf("-", searchFrom);
-                    if (temp == -1) {
-                        break;
-                    }
-                    validLineup[idx++] = finalCows.get(i).substring(0, temp);
-                    searchFrom = temp;
+        for (int a=0; a<8; a++) {
+            for (int b=0; b<8; b++) {
+                if (a==b) {
+                    continue;
                 }
-            }
-        }
+                for (int c=0; c<8; c++) {
+                    if (a==c || b==c) {
+                        continue;
+                    }
+                    for (int d=0; d<8; d++) {
+                        if (a==d || b==d || c==d) {
+                            continue;
+                        }
+                        for (int e=0; e<8; e++) {
+                            if (a==e || b==e || c==e || d==e) {
+                                continue;
+                            }
+                            for (int f=0; f<8; f++) {
+                                if (a==f || b==f || c==f || d==f || e==f) {
+                                    continue;
+                                }
+                                for (int g=0; g<8; g++) {
+                                    if (a==g || b==g || c==g || d==g || e==g || f==g) {
+                                        continue;
+                                    }
+                                    for (int h=0; h<8; h++) {
+                                        if (a==h || b==h || c==h || d==h || e==h || f==h || g==h) {
+                                            continue;
+                                        }
 
-        return validLineup;
-    }
+                                        // generate a order based on the for loops
+                                        String[] currOrder = generateOrder(a, b, c, d, e, f, g, h);
 
-    public static ArrayList<String> determineConstraintCows() {
-        ArrayList<String> constraintCows = new ArrayList<>();
-        for (int i=0; i<numConstraints; i++) {
-            for (int j=0; j<2; j++) {
-                boolean found = false;
-
-                for (int k=0; k<constraintCows.size(); k++) {
-                    if (constraints[i][j].equals(constraintCows.get(k))) {
-                        found = true;
-                        break;
+                                        // see if the order is valid
+                                        if (isOrderValid(currOrder)) {
+                                            // compare the order to the minOrder
+                                            if (Arrays.toString(currOrder).compareTo(Arrays.toString(minOrder)) < 0) {
+                                                minOrder = currOrder;
+                                                //System.out.println(Arrays.toString(currOrder));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
+            }
+        }
 
-                if (!found) {
-                    constraintCows.add(constraints[i][j]);
+        return minOrder;
+    }
+
+    public static String[] generateOrder(int a, int b, int c, int d, int e, int f, int g, int h) {
+        String[] currOrder = new String[8];
+
+        currOrder[0] = cows[a];
+        currOrder[1] = cows[b];
+        currOrder[2] = cows[c];
+        currOrder[3] = cows[d];
+        currOrder[4] = cows[e];
+        currOrder[5] = cows[f];
+        currOrder[6] = cows[g];
+        currOrder[7] = cows[h];
+
+        return currOrder;
+    }
+    public static boolean isOrderValid(String[] order) {
+        for (int i=0; i<numConstraints; i++) {
+            int cow1Idx = -1, cow2Idx = -1;
+
+            for (int j=0; j<order.length; j++) {
+                if (constraints[i][0].equals(order[j])) {
+                    cow1Idx = j;
+                } else if (constraints[i][1].equals(order[j])) {
+                    cow2Idx = j;
                 }
             }
-        }
 
-        return constraintCows;
-    }
-    public static boolean isCowConstraintDuplicate(String cow) {
-        int cowOccurrenceCnt = 0;
-        for (int i=0; i<numConstraints; i++) {
-            if (cow.equals(constraints[i][0])) {
-                cowOccurrenceCnt++;
-            } else if (cow.equals(constraints[i][1])) {
-                cowOccurrenceCnt++;
-            }
-        }
-
-        if (cowOccurrenceCnt == 2) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    public static String[] findCowPairs(String cow) {
-        String[] cowPairs = {"", ""};
-        for (int i=0, idx=0; i<numConstraints; i++) {
-            if (constraints[i][0].equals(cow)) {
-                cowPairs[idx++] = constraints[i][1];
-            } else if (constraints[i][1].equals(cow)) {
-                cowPairs[idx++] = constraints[i][0];
-            }
-        }
-
-        return cowPairs;
-    }
-    public static boolean isCowNotConstraint(String cow, ArrayList<String> constraintCows) {
-        for (int i=0; i<constraintCows.size(); i++) {
-            if (cow.equals(constraintCows.get(i))) {
+            if (Math.abs(cow2Idx-cow1Idx) != 1) {
                 return false;
             }
         }
@@ -130,29 +104,24 @@ public class lineup_dec2019 {
 
     public static void main(String[] args) throws IOException {
         // input
-        String problemName = "lineup";
-        Scanner sc = new Scanner(new File(problemName + ".in"));
+        Scanner sc = new Scanner(new File("lineup.in"));
 
         numConstraints = sc.nextInt();
         constraints = new String[numConstraints][2];
         for (int i=0; i<numConstraints; i++) {
             constraints[i][0] = sc.next();
-            sc.next();
-            sc.next();
-            sc.next();
-            sc.next();
+            for (int j=0; j<4; j++) {
+                sc.next();
+            }
             constraints[i][1] = sc.next();
-
-            System.out.println(Arrays.toString(constraints[i]));
         }
 
         // algorithm
-        //String[] validLineup = lineup();
-        String[] validLineup2 = {"Beatrice", "Sue", "Belinda", "Bessie", "Betsy", "Blue", "Bella", "Buttercup"};
+        String[] order = lineup();
 
         // output
-        PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));
-        for (String cow: validLineup2) {
+        PrintWriter out = new PrintWriter(new FileWriter("lineup.out"));
+        for (String cow: order) {
             out.println(cow);
         }
         out.close();
