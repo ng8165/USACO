@@ -1,54 +1,74 @@
 // Why Did the Cow Cross the Road - USACO Bronze February 2017 (http://www.usaco.org/index.php?page=viewproblem2&cpid=711)
+// This problem was done on Sunday, September 6, 2020, in 23 minutes, with all 10 test cases passed (second try)
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Scanner;
 
-public class L5_crossroad {
-    public static int crossroad(int observationNum, int[] cowID, int[] position) {
-        int crossings = 0;
+public class crossroad_feb2017 {
+    public static int crossroad(int[] cowID, int[] cowPositions) {
+        int numObservations = cowID.length;
+        int numCrossings = 0;
 
-        for (int i=0; i<observationNum; i++) {
-            for (int j=i+1; j<observationNum; j++) { // find if the cow is moving from i+1 to the end
-                if (cowID[j] == cowID[i]) {
-                    if (position[i] != position[j]) { // if the cow never moves we don't need to count
-                        crossings++;
+        for (int i=0; i<numObservations; i++) {
+            int currCowID = cowID[i];
+            int currCowPos = cowPositions[i];
+
+            for (int j=i-1; j>=0; j--) {
+                if (cowID[j] == currCowID) {
+                    if (cowPositions[j] != currCowPos) {
+                        numCrossings++;
                     }
                     break;
                 }
             }
         }
 
-        return crossings;
+        return numCrossings;
+    }
+    public static int crossroad2(int[] cowID, int[] cowPositions) {
+        int numObservations = cowID.length;
+        int numCrossings = 0;
+
+        int[] cowLastPositons = new int[10+1];
+        Arrays.fill(cowLastPositons, -1);
+
+        for (int i=0; i<numObservations; i++) {
+            int currCowID = cowID[i];
+            int currCowLastPosition = cowLastPositons[currCowID];
+
+            if (currCowLastPosition != -1 && currCowLastPosition != cowPositions[i]) {
+                numCrossings++;
+            }
+
+            cowLastPositons[currCowID] = cowPositions[i];
+        }
+
+        return numCrossings;
     }
 
     public static void main(String[] args) throws IOException {
         // input
         String problemName = "crossroad";
         Scanner sc = new Scanner(new File(problemName + ".in"));
-        int observationNum = sc.nextInt();
-        int[] cowID = new int[observationNum];
-        int[] position = new int[observationNum];
-        for (int i=0; i<observationNum; i++) {
+
+        int numObservations = sc.nextInt();
+        int[] cowID = new int[numObservations];
+        int[] cowPositions = new int[numObservations];
+        for (int i=0; i<numObservations; i++) {
             cowID[i] = sc.nextInt();
-            position[i] = sc.nextInt();
+            cowPositions[i] = sc.nextInt();
         }
-        /*
-        System.out.println(observationNum + " observations");
-        for (int i=0; i<observationNum; i++) {
-            System.out.println(cowID[i] + " " + position[i]);
-        }
-        */
 
         // algorithm
-        int crossings = crossroad(observationNum, cowID, position);
+        int numCrossings = crossroad2(cowID, cowPositions);
 
-        //output
+        // output
         PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));
-        out.println(crossings);
+        out.println(numCrossings);
         out.close();
     }
-
 }
