@@ -1,5 +1,5 @@
 // Cow Gymnastics - USACO Bronze December 2019 (http://www.usaco.org/index.php?page=viewproblem2&cpid=963)
-// This problem was completed on November 15, 2020, in 18 minutes, with all 10/10 test cases passed (second try)
+// This problem was completed on December 20, 2020, in 9 minutes, with 10/10 test cases passed (second try)
 
 import java.io.File;
 import java.io.FileWriter;
@@ -10,10 +10,10 @@ import java.util.Scanner;
 public class gymnastics_dec2019 {
     static int numPractices;
     static int numCows;
-    static int[][] rankings;
+    static int[][] performances;
 
     public static int gymnastics() {
-        int consistentPairCnt = 0;
+        int numConsistentPairs = 0;
 
         for (int i=1; i<=numCows; i++) {
             for (int j=1; j<=numCows; j++) {
@@ -22,28 +22,27 @@ public class gymnastics_dec2019 {
                 }
 
                 if (isConsistentPair(i, j)) {
-                    consistentPairCnt++;
+                    numConsistentPairs++;
                 }
             }
         }
 
-        return consistentPairCnt;
+        return numConsistentPairs;
     }
 
     public static boolean isConsistentPair(int cow1, int cow2) {
         for (int i=0; i<numPractices; i++) {
-            int cow1Pos = -1;
-            int cow2Pos = -1;
+            int cow1Idx = -1, cow2Idx = -1;
 
             for (int j=0; j<numCows; j++) {
-                if (rankings[i][j] == cow1) {
-                    cow1Pos = j;
-                } else if (rankings[i][j] == cow2) {
-                    cow2Pos = j;
+                if (performances[i][j] == cow1) {
+                    cow1Idx = j;
+                } else if (performances[i][j] == cow2) {
+                    cow2Idx = j;
                 }
             }
 
-            if (cow1Pos > cow2Pos) {
+            if (cow2Idx > cow1Idx) {
                 return false;
             }
         }
@@ -53,15 +52,16 @@ public class gymnastics_dec2019 {
 
     public static void main(String[] args) throws IOException {
         // input
-        String problemName = "gymnastics";
-        Scanner sc = new Scanner(new File(problemName + ".in"));
+        /*String problemName = "gymnastics";
+        Scanner sc = new Scanner(new File(problemName + ".in"));*/
+        Scanner sc = new Scanner(System.in);
 
         numPractices = sc.nextInt();
         numCows = sc.nextInt();
-        rankings = new int[numPractices][numCows];
+        performances = new int[numPractices][numCows];
         for (int i=0; i<numPractices; i++) {
             for (int j=0; j<numCows; j++) {
-                rankings[i][j] = sc.nextInt();
+                performances[i][j] = sc.nextInt();
             }
         }
 
@@ -69,8 +69,9 @@ public class gymnastics_dec2019 {
         int numConsistentPairs = gymnastics();
 
         // output
-        PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));
+        /*PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));
         out.println(numConsistentPairs);
-        out.close();
+        out.close();*/
+        System.out.println(numConsistentPairs);
     }
 }
