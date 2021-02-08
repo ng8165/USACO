@@ -1,75 +1,70 @@
 // Auto-Complete - USACO Bronze February 2014 (http://www.usaco.org/index.php?page=viewproblem2&cpid=395)
+// This problem was finished on 1/30/21 as homework for the USACO Silver 1 Class.
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Scanner;
 
-public class L10_auto {
-    public static ArrayList<Integer> auto(String[] words, String[] partialWords, int[] lookupIndexes, int numWords, int numPartialWords) {
-        ArrayList<Integer> outputLines = new ArrayList<>();
+public class L1_auto {
+    static int numDictEntries;
+    static int numRequests;
+    static DictEntry[] dictionary;
 
-        Arrays.sort(words);
+    static class DictEntry implements Comparable<DictEntry> {
+        String word;
+        int idx;
 
-        for (int i=0; i<numPartialWords; i++) {
-            String partialWord = partialWords[i];
-
-            ArrayList<String> startWithPartialWord = new ArrayList<>();
-            for (int j=0; j<numWords; j++) {
-                if (words[j].startsWith(partialWord)) {
-                    startWithPartialWord.add(words[j]);
-                }
-            }
-
-            if (lookupIndexes[i] > startWithPartialWord.size() || startWithPartialWord.size() == 0) {
-                outputLines.add(-1);
-                continue;
-            }
-
-            Collections.sort(startWithPartialWord);
-
-            String requestedWord = startWithPartialWord.get(lookupIndexes[i]-1);
-
-            for (int j=0; j<numWords; j++) {
-                if (words[j].equals(requestedWord)) {
-                    outputLines.add(j+1);
-                    break;
-                }
-            }
+        DictEntry(String word, int idx) {
+            this.word = word;
+            this.idx = idx;
         }
 
-        return outputLines;
+        public int compareTo(DictEntry another) {
+            return word.compareTo(another.word);
+        }
     }
 
     public static void main(String[] args) throws IOException {
         // input
         String problemName = "auto";
         Scanner sc = new Scanner(new File(problemName + ".in"));
-        int numWords = sc.nextInt();
-        int numPartialWords = sc.nextInt();
-        String[] words = new String[numWords];
-        String[] partialWords = new String[numPartialWords];
-        int[] lookupIndexes = new int[numPartialWords];
-        for (int i=0; i<numWords; i++) {
-            words[i] = sc.next();
-        }
-        for (int i=0; i<numPartialWords; i++) {
-            lookupIndexes[i] = sc.nextInt();
-            partialWords[i] = sc.next();
+
+        numDictEntries = sc.nextInt();
+        numRequests = sc.nextInt();
+        dictionary = new DictEntry[numDictEntries];
+        for (int i=0; i<numDictEntries; i++) {
+            dictionary[i] = new DictEntry(sc.next(), (i+1));
         }
 
-        // algorithm
-        ArrayList<Integer> outputLines = auto(words, partialWords, lookupIndexes, numWords, numPartialWords);
-
-        // output
+        // algorithm and output
         PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));
-        for (int i=0; i<numPartialWords; i++) {
-            out.println(outputLines.get(i));
+
+        Arrays.sort(dictionary);
+
+        for (int i=0; i<numRequests; i++) {
+            int idx = sc.nextInt();
+            String partialWord = sc.next();
+
+            int output = -1;
+
+            for (int j=0; j<numDictEntries; j++) {
+                if (dictionary[j].word.startsWith(partialWord)) {
+                    int newIdx = j+idx-1;
+
+                    if (newIdx < numDictEntries && dictionary[newIdx].word.startsWith(partialWord)) {
+                        output = dictionary[newIdx].idx;
+                    }
+
+                    break;
+                }
+            }
+
+            out.println(output);
         }
+
         out.close();
     }
 }
