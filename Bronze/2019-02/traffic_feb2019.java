@@ -1,127 +1,118 @@
-// Measuring Traffic - USACO Bronze February 2019 (http://www.usaco.org/index.php?page=viewproblem2&cpid=917)
-// This problem was not completed on November 1, 2020, in 1 hour and 14 minutes, with 2/10 test cases passed (first try)
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
-public class traffic_feb2019 {
-    static int highwayLength;
+public class traffic_bronzebooster {
+    static int numSensors;
     static String[] sensorType;
-    static int[][] flowRange;
+    static int[][] sensorRange;
 
     public static int[][] traffic() {
-        // determine the location of the first "none" and the last "none"
-        int firstNone = -1;
-        for (int i=0; i<highwayLength; i++) {
-            if (sensorType[i].equals("none")) {
-                firstNone = i;
-                break;
-            }
-        }
+        int[][] output = new int[2][2];
 
-        int lastNone = -1;
-        for (int i=highwayLength-1; i>=0; i--) {
-            if (sensorType[i].equals("none")) {
-                lastNone = i;
-                break;
-            }
-        }
+        boolean start = false;
+        int startRange = -1;
+        int endRange = -1;
 
-        // are there "on" are "off" from first "none" to last "none"
-        boolean onlyNone = true;
-        for (int i=firstNone; i<=lastNone; i++) {
-            if (!sensorType[i].equals("none")) {
-                onlyNone = false;
-                break;
-            }
-        }
+        for (int i=numSensors-1; i>=0; i--) {
+            if (!start) {
+                if (sensorType[i].equals("none")) {
+                    start = true;
+                    startRange = sensorRange[i][0];
+                    endRange = sensorRange[i][1];
+                }
 
-        // determine the flow of traffic from the first none to the last none
-        int trafficFlowSmall = flowRange[firstNone][0];
-        int trafficFlowLarge = flowRange[firstNone][1];
-
-        int beforeMile1RangeSmall = -1;
-        int beforeMile1RangeLarge = -1;
-        boolean continueSearching = true;
-
-        for (int i=firstNone+1; i<=lastNone; i++) {
-            if (continueSearching && !onlyNone && !sensorType[i].equals("none")) {
-                beforeMile1RangeSmall = trafficFlowSmall;
-                beforeMile1RangeLarge = trafficFlowLarge;
-                continueSearching = false;
+                continue;
             }
 
             if (sensorType[i].equals("none")) {
-                trafficFlowSmall = Math.max(trafficFlowSmall, flowRange[i][0]);
-                trafficFlowLarge = Math.min(trafficFlowLarge, flowRange[i][1]);
+                startRange = Math.max(startRange, sensorRange[i][0]);
+                endRange = Math.min(endRange, sensorRange[i][1]);
             } else if (sensorType[i].equals("on")) {
-                trafficFlowSmall += flowRange[i][0];
-                trafficFlowLarge += flowRange[i][1];
+                if (startRange - sensorRange[i][1] < 0) {
+                    startRange = 0;
+                } else {
+                    startRange -= sensorRange[i][1];
+                }
+
+                if (endRange - sensorRange[i][0] < 0) {
+                    endRange = 0;
+                } else {
+                    endRange -= sensorRange[i][0];
+                }
             } else {
-                trafficFlowSmall -= flowRange[i][1];
-                trafficFlowLarge -= flowRange[i][0];
-            }
-
-             if (onlyNone) {
-                 beforeMile1RangeSmall = trafficFlowSmall;
-                 beforeMile1RangeLarge = trafficFlowLarge;
-             }
-        }
-
-        System.out.println(trafficFlowSmall + " - " + trafficFlowLarge);
-
-        // now work backwards from this to before the first mile
-        for (int i=firstNone-1; i>=0; i--) {
-            if (sensorType[i].equals("on")) {
-                beforeMile1RangeSmall -= flowRange[i][0];
-                beforeMile1RangeLarge -= flowRange[i][1];
-            } else {
-                beforeMile1RangeSmall += flowRange[i][1];
-                beforeMile1RangeLarge += flowRange[i][0];
+                startRange += sensorRange[i][0];
+                endRange += sensorRange[i][1];
             }
         }
 
-        // work forwards from the last "none" mile to the end
-        int afterLastMileRangeSmall = trafficFlowSmall;
-        int afterLastMileRangeLarge = trafficFlowLarge;
+        output[0][0] = startRange;
+        output[0][1] = endRange;
 
-        for (int i=lastNone+1; i<highwayLength; i++) {
-            if (sensorType[i].equals("on")) {
-                afterLastMileRangeSmall += flowRange[i][0];
-                afterLastMileRangeLarge += flowRange[i][1];
+        start = false;
+        startRange = -1;
+        endRange = -1;
+
+        for (int i=0; i<numSensors; i++) {
+            if (!start) {
+                if (sensorType[i].equals("none")) {
+                    start = true;
+                    startRange = sensorRange[i][0];
+                    endRange = sensorRange[i][1];
+                }
+
+                continue;
+            }
+
+            if (sensorType[i].equals("none")) {
+                startRange = Math.max(startRange, sensorRange[i][0]);
+                endRange = Math.min(endRange, sensorRange[i][1]);
+            } else if (sensorType[i].equals("on")) {
+                startRange += sensorRange[i][0];
+                endRange += sensorRange[i][1];
             } else {
-                afterLastMileRangeSmall -= flowRange[i][1];
-                afterLastMileRangeLarge -= flowRange[i][0];
+                if (startRange - sensorRange[i][1] < 0) {
+                    startRange = 0;
+                } else {
+                    startRange -= sensorRange[i][1];
+                }
+
+                if (endRange - sensorRange[i][0] < 0) {
+                    endRange = 0;
+                } else {
+                    endRange -= sensorRange[i][0];
+                }
             }
         }
 
-        return new int[][] {{beforeMile1RangeSmall, beforeMile1RangeLarge}, {afterLastMileRangeSmall, afterLastMileRangeLarge}};
+        output[1][0] = startRange;
+        output[1][1] = endRange;
+
+        return output;
     }
 
     public static void main(String[] args) throws IOException {
         // input
-        String problemName = "traffic";
-        Scanner sc = new Scanner(new File(problemName + ".in"));
+        Scanner sc = new Scanner(new File("traffic.in"));
 
-        highwayLength = sc.nextInt();
-        sensorType = new String[highwayLength];
-        flowRange = new int[highwayLength][2];
-        for (int i=0; i<highwayLength; i++) {
+        numSensors = sc.nextInt();
+        sensorType = new String[numSensors];
+        sensorRange = new int[numSensors][2];
+        for (int i=0; i<numSensors; i++) {
             sensorType[i] = sc.next();
-            flowRange[i][0] = sc.nextInt();
-            flowRange[i][1] = sc.nextInt();
+            sensorRange[i][0] = sc.nextInt();
+            sensorRange[i][1] = sc.nextInt();
         }
 
         // algorithm
-        int[][] trafficFlow = traffic();
+        int[][] output = traffic();
 
         // output
-        PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));
-        out.println(trafficFlow[0][0] + " " + trafficFlow[0][1]);
-        out.println(trafficFlow[1][0] + " " + trafficFlow[1][1]);
+        PrintWriter out = new PrintWriter(new FileWriter("traffic.out"));
+        out.println(output[0][0] + " " + output[0][1]);
+        out.println(output[1][0] + " " + output[1][1]);
         out.close();
     }
 }
