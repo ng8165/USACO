@@ -1,6 +1,3 @@
-// Family Tree - USACO Bronze US Open 2018 (http://www.usaco.org/index.php?page=viewproblem2&cpid=833)
-// This problem was partially completed on October 11, 2020, in 1 hour, with 9/15 test cases passed (first try)
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -8,90 +5,107 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class family_open2018 {
+public class family_bronzebooster {
     static int numRelationships;
-    static String cow1;
-    static String cow2;
     static String[][] relationships;
 
-    public static String family() {
-        String cow1_mother = "";
-        for (int i=0; i<numRelationships; i++) {
-            if (relationships[i][1].equals(cow1)) {
-                cow1_mother = relationships[i][0];
+    public static String family(String startingCow, String intendedCow) {
+        ArrayList<ArrayList<String>> familyTree = new ArrayList<>();
+
+        // first find all mother(ish) cows
+        familyTree.add(new ArrayList<>());
+        familyTree.get(0).add(startingCow);
+
+        while (true) {
+            boolean found = false;
+
+            for (int i = 0; i < numRelationships; i++) {
+                ArrayList<String> currBranch = familyTree.get(familyTree.size() - 1);
+
+                if (relationships[i][1].equals(currBranch.get(currBranch.size() - 1))) {
+                    familyTree.add(new ArrayList<>());
+                    familyTree.get(familyTree.size() - 1).add(relationships[i][0]);
+
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                break;
             }
         }
-        String cow1_sister = "";
-        for (int i=0; i<numRelationships; i++) {
-            if (relationships[i][0].equals(cow1_mother) && (!relationships[i][1].equals(cow1))) {
-                cow1_sister = relationships[i][1];
+
+        // start finding aunt(ish) and cousin cows
+        for (int i=1; i<familyTree.size(); i++) {
+            while (true) {
+                boolean found = false;
+
+                for (int j=0; j<numRelationships; j++) {
+                    ArrayList<String> pastBranch = familyTree.get(i-1);
+                    ArrayList<String> currBranch = familyTree.get(i);
+
+                    if (!(relationships[j][1].equals(pastBranch.get(0))) && (relationships[j][0].equals(currBranch.get(currBranch.size()-1)))) {
+                        familyTree.get(i).add(relationships[j][1]);
+
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    break;
+                }
             }
         }
-        String cow1_grandmother = "";
-        for (int i=0; i<numRelationships; i++) {
-            if (relationships[i][1].equals(cow1_mother)) {
-                cow1_grandmother = relationships[i][0];
+
+        // start searching for intendedCow
+        for (int i=0; i<familyTree.size(); i++) {
+            for (int j=0; j<familyTree.get(i).size(); j++) {
+                if (familyTree.get(i).get(j).equals(intendedCow)) {
+                    if (j==0) {
+                        return (intendedCow + " is the " + printRelationship("mother", i) + "mother of " + startingCow);
+                    } else if (j==1 && i>1) {
+                        return (intendedCow + " is the " + printRelationship("aunt", i) + "aunt of " + startingCow);
+                    } else if (j==1 && i==1) {
+                        return "SIBLINGS";
+                    } else if (j>1) {
+                        return "COUSINS";
+                    }
+                }
             }
         }
-        String cow1_aunt = "";
-        for (int i=0; i<numRelationships; i++) {
-            if (relationships[i][0].equals(cow1_grandmother) && (!relationships[i][1].equals(cow1))) {
-                cow1_aunt = relationships[i][1];
+
+        return "NOT RELATED";
+    }
+
+    public static String printRelationship(String relationshipType, int level) {
+        StringBuilder greatAndGrand =  new StringBuilder();
+
+        if (relationshipType.equals("mother")) {
+            for (int i=0; i<level-1; i++) {
+                if (i==level-2) {
+                    greatAndGrand.append("grand-");
+                } else {
+                    greatAndGrand.append("great-");
+                }
+            }
+        } else if (relationshipType.equals("aunt")) {
+            for (int i=0; i<level-2; i++) {
+                greatAndGrand.append("great-");
             }
         }
-        String cow1_greatgrandmother = "";
-        for (int i=0; i<numRelationships; i++) {
-            if (relationships[i][1].equals(cow1_grandmother)) {
-                cow1_greatgrandmother = relationships[i][0];
-            }
-        }
-        String cow1_greataunt = "";
-        for (int i=0; i<numRelationships; i++) {
-            if (relationships[i][0].equals(cow1_greatgrandmother) && (!relationships[i][1].equals(cow1_grandmother))) {
-                cow1_greataunt = relationships[i][1];
-            }
-        }
-        String cow1_greatgreatgrandmother = "";
-        for (int i=0; i<numRelationships; i++) {
-            if (relationships[i][1].equals(cow1_greatgrandmother)) {
-                cow1_greatgreatgrandmother = relationships[i][0];
-            }
-        }
-        String cow1_greatgreataunt = "";
-        for (int i=0; i<numRelationships; i++) {
-            if (relationships[i][0].equals(cow1_greatgreatgrandmother) && (!relationships[i][1].equals(cow1_greatgrandmother))) {
-                cow1_greatgreataunt = relationships[i][1];
-            }
-        }
-        if (cow1_sister.equals(cow2)) {
-            return "SIBLINGS";
-        } else if (cow1_mother.equals(cow2)) {
-            return cow2 + " is the mother of " + cow1;
-        } else if (cow1_aunt.equals(cow2)) {
-            return cow2 + " is the aunt of " + cow1;
-        } else if (cow1_grandmother.equals(cow2)) {
-            return cow2 + " is the grand-mother of " + cow1;
-        } else if (cow1_greataunt.equals(cow2)) {
-            return cow2 + " is the great-aunt of " + cow1;
-        } else if (cow1_greatgrandmother.equals(cow2)) {
-            return cow2 + " is the great-grand-mother of " + cow1;
-        } else if (cow1_greatgreataunt.equals(cow2)) {
-            return cow2 + " is the great-great-aunt of " + cow1;
-        } else if (cow1_greatgreatgrandmother.equals(cow2)) {
-            return cow2 + " is the great-great-grand-mother of " + cow1;
-        } else {
-            return "NOT RELATED";
-        }
+
+        return greatAndGrand.toString();
     }
 
     public static void main(String[] args) throws IOException {
         // input
-        String problemName = "family";
-        Scanner sc = new Scanner(new File(problemName + ".in"));
+        Scanner sc = new Scanner(new File("family.in"));
 
         numRelationships = sc.nextInt();
-        cow1 = sc.next();
-        cow2 = sc.next();
+        String cow1 = sc.next();
+        String cow2 = sc.next();
         relationships = new String[numRelationships][2];
         for (int i=0; i<numRelationships; i++) {
             relationships[i][0] = sc.next();
@@ -99,11 +113,18 @@ public class family_open2018 {
         }
 
         // algorithm
-        String relationship = family();
+        String case1 = family(cow1, cow2);
+        String case2 = family(cow2, cow1);
 
         // output
-        PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));
-        out.println(relationship);
+        PrintWriter out = new PrintWriter(new FileWriter("family.out"));
+
+        if (case2.contains("the") && (case1.equals("COUSINS") || case1.equals("NOT RELATED"))) {
+            out.println(case2);
+        } else {
+            out.println(case1);
+        }
+
         out.close();
     }
 }
