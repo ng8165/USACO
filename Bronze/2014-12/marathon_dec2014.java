@@ -1,4 +1,5 @@
 // Marathon - USACO Bronze December 2014 (http://www.usaco.org/index.php?page=viewproblem2&cpid=487)
+// This problem was completed on December 5, 2020, 10 minutes, with all 15/15 test cases passed (second try)
 
 import java.io.File;
 import java.io.FileWriter;
@@ -6,48 +7,42 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
-public class L8_marathon {
-    public static int marathon(int numCheckpoints, int[] xCoordinates, int[] yCoordinates) {
+public class marathon_dec2014 {
+    static int numCheckpoints;
+    static int[][] checkpoints;
+    static int distance = 0;
+
+    public static int marathon() {
         int minDistance = Integer.MAX_VALUE;
-        int totalDistance = 0;
 
-        // find total distance without skipping checkpoints
-        for (int i=0; i<numCheckpoints-1; i++) {
-            totalDistance += (Math.abs(xCoordinates[i] - xCoordinates[i+1]) + Math.abs(yCoordinates[i] - yCoordinates[i+1]));
-        }
-
-        // with i as index for skipped checkpoint, we subtract old distance and add new distance
         for (int i=1; i<numCheckpoints-1; i++) {
-            int currDistance = totalDistance;
+            int dist1 = Math.abs(checkpoints[i][0] - checkpoints[i-1][0]) + Math.abs(checkpoints[i][1] - checkpoints[i-1][1]);
+            int dist2 = Math.abs(checkpoints[i+1][0] - checkpoints[i][0]) + Math.abs(checkpoints[i+1][1] - checkpoints[i][1]);
+            int dist3 = Math.abs(checkpoints[i+1][0] - checkpoints[i-1][0]) + Math.abs(checkpoints[i+1][1] - checkpoints[i-1][1]);
 
-            int distance1 = Math.abs(xCoordinates[i-1] - xCoordinates[i]) + Math.abs(yCoordinates[i-1] - yCoordinates[i]);
-            int distance2 = Math.abs(xCoordinates[i] - xCoordinates[i+1]) + Math.abs(yCoordinates[i] - yCoordinates[i+1]);
-            int distance3 = Math.abs(xCoordinates[i-1] - xCoordinates[i+1]) + Math.abs(yCoordinates[i-1] - yCoordinates[i+1]);
-
-            currDistance -= distance1;
-            currDistance -= distance2;
-            currDistance += distance3;
-
-            minDistance = Math.min(currDistance, minDistance);
+            minDistance = Math.min(minDistance, (dist3 - dist1 - dist2));
         }
 
-        return minDistance;
+        return distance + minDistance;
     }
 
     public static void main(String[] args) throws IOException {
         // input
         String problemName = "marathon";
         Scanner sc = new Scanner(new File(problemName + ".in"));
-        int numCheckpoints = sc.nextInt();
-        int[] xCoordinates = new int[numCheckpoints];
-        int[] yCoordinates = new int[numCheckpoints];
+
+        numCheckpoints = sc.nextInt();
+        checkpoints = new int[numCheckpoints][2];
         for (int i=0; i<numCheckpoints; i++) {
-            xCoordinates[i] = sc.nextInt();
-            yCoordinates[i] = sc.nextInt();
+            checkpoints[i][0] = sc.nextInt();
+            checkpoints[i][1] = sc.nextInt();
+            if (i>0) {
+                distance += Math.abs(checkpoints[i][0] - checkpoints[i-1][0]) + Math.abs(checkpoints[i][1] - checkpoints[i-1][1]);
+            }
         }
 
         // algorithm
-        int minDistance = marathon(numCheckpoints, xCoordinates, yCoordinates);
+        int minDistance = marathon();
 
         // output
         PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));

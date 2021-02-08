@@ -1,57 +1,63 @@
 // Crosswords - USACO Bronze December 2014 (http://www.usaco.org/index.php?page=viewproblem2&cpid=488)
+// This problem was completed on December 5, 2020, 29 minutes, with all 10/10 test cases passed (second try)
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.Scanner;
 
-public class L10_crosswords {
-    public static void crosswords(char[][] crossword, ArrayList<int[]> clues) {
-        for (int row=0; row<crossword.length; row++) {
-            for (int column=0; column<crossword[0].length; column++) {
-                if (crossword[row][column] == '#') {
-                    continue;
-                }
+public class crosswords_dec2014 {
+    static int length;
+    static int width;
+    static char[][] crossword;
 
-                // check if the char can be a horizontal clue beginning
-                if (column == 0 || crossword[row][column-1] == '#') {
-                    // check if the cell to the left is outside of grid or blocked
-                    if (column < crossword[0].length-2 && crossword[row][column+1] == '.' && crossword[row][column+2] == '.') {
-                        // check if the two cells to the right are empty
-                        clues.add(new int[] {row+1, column+1});
-                        continue;
-                    }
-                }
+    public static ArrayList<int[]> crosswords() {
+        ArrayList<int[]> clues = new ArrayList<>();
 
-                // now check if char can be a vertical clue beginning
-                if (row == 0 || crossword[row-1][column] == '#') {
-                    // check if the cell above is outside of grid or blocked
-                    if (row<crossword.length-2 && crossword[row+1][column] == '.' && crossword[row+2][column] == '.') {
-                        // check if the two cells below are empty
-                        clues.add(new int[] {row+1, column+1});
-                    }
+        for (int i=0; i<length; i++) {
+            for (int j=0; j<width; j++) {
+                if (isHorizontalClue(i, j) || isVerticalClue(i, j)) {
+                    clues.add(new int[] {i+1, j+1});
                 }
             }
         }
+
+        return clues;
+    }
+    public static boolean isHorizontalClue(int i, int j) {
+        if ((crossword[i][j] == '.') && (j==0 || crossword[i][j-1] == '#') &&
+                (j < width-2 && crossword[i][j+1] == '.' && crossword[i][j+2] == '.')) {
+            return true;
+        }
+
+        return false;
+    }
+    public static boolean isVerticalClue(int i, int j) {
+        if ((crossword[i][j] == '.') && (i==0 || crossword[i-1][j] == '#') &&
+                (i < length-2 && crossword[i+1][j] == '.' && crossword[i+2][j] == '.')) {
+            return true;
+        }
+
+        return false;
     }
 
     public static void main(String[] args) throws IOException {
         // input
         String problemName = "crosswords";
         Scanner sc = new Scanner(new File(problemName + ".in"));
-        int row = sc.nextInt();
-        int column = sc.nextInt();
+
+        length = sc.nextInt();
+        width = sc.nextInt();
         sc.nextLine();
-        ArrayList<int[]> clues = new ArrayList<>();
-        char[][] crossword = new char[row][column];
-        for (int i=0; i<row; i++) {
+        crossword = new char[length][width];
+        for (int i=0; i<length; i++) {
             crossword[i] = sc.nextLine().toCharArray();
         }
 
         // algorithm
-        crosswords(crossword, clues); // clues is the output ArrayList
+        ArrayList<int[]> clues = crosswords();
 
         // output
         PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));
