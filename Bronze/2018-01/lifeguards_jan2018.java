@@ -1,4 +1,5 @@
 // Lifeguards - USACO Bronze January 2018 (http://www.usaco.org/index.php?page=viewproblem2&cpid=784)
+// This problem was completed on September 27, 2020, in 35 minutes, with all 10/10 test cases passed (second try)
 
 import java.io.File;
 import java.io.FileWriter;
@@ -7,61 +8,59 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class L14_lifeguards {
-    static int[][] cowShifts;
+public class lifeguards_jan2018 {
+    static int numLifeguards;
+    static int[][] lifeguardShifts;
 
     public static int lifeguards() {
-        int numCows = cowShifts.length;
-        int maxTime = 0;
+        int maxLifeguardTime = 0;
 
-        for (int i=0; i<numCows; i++) { // i will be the index for which cow to fire
-            // generate the time line where the cow shifts are
-            int[] timeEvents = new int[numCows*2-2];
-            for (int j=0, cnt=0; j<numCows; j++) {
+        for (int i=0; i<numLifeguards; i++) { // i is the index for which lifeguard to fire
+            int currLifeguardTime = 0;
+
+            // first generate a timeline
+            int[] timeline = new int[numLifeguards*2-2];
+            for (int j=0, idx=0; j<numLifeguards; j++) {
                 if (j == i) {
                     continue;
                 }
-                timeEvents[cnt] = cowShifts[j][0];
-                cnt++;
-                timeEvents[cnt] = cowShifts[j][1];
-                cnt++;
+                timeline[idx++] = lifeguardShifts[j][0];
+                timeline[idx++] = lifeguardShifts[j][1];
             }
-            Arrays.sort(timeEvents);
+            Arrays.sort(timeline);
 
-            int lifeguardNum = 0;
-            int lifeguardTime = 0;
-            for (int j=0; j<timeEvents.length; j++) {
-                if (lifeguardNum > 0) {
-                    lifeguardTime += (timeEvents[j] - timeEvents[j-1]);
+            // iterate through the timeline: add current lifeguard time, update lifeguard num
+            int currLifeguardCnt = 0;
+
+            for (int j=0; j<timeline.length; j++) {
+                if (currLifeguardCnt > 0) {
+                    currLifeguardTime += (timeline[j] - timeline[j-1]);
                 }
 
-                boolean isStarting = findShift(timeEvents[j]);
-                if (isStarting) {
-                    lifeguardNum++;
+                // update lifeguard count
+                if (isShiftStartTime(timeline[j])) {
+                    currLifeguardCnt++;
                 } else {
-                    lifeguardNum--;
+                    currLifeguardCnt--;
                 }
             }
 
-            maxTime = Math.max(maxTime, lifeguardTime);
+            maxLifeguardTime = Math.max(maxLifeguardTime, currLifeguardTime);
         }
 
-        return maxTime;
+        return maxLifeguardTime;
     }
-    public static boolean findShift(int timeEvent) {
-        for (int row=0; row<cowShifts.length; row++) {
-            for (int column=0; column<2; column++) {
-                if (timeEvent == cowShifts[row][column]) {
-                    if (column == 0) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
+
+    public static boolean isShiftStartTime(int time) {
+        for (int i=0; i<numLifeguards; i++) {
+            if (lifeguardShifts[i][0] == time) { // check for start time
+                return true;
+            } else if (lifeguardShifts[i][1] == time) { // check for end time
+                return false;
             }
         }
 
-        return true; // this should never happen, just so program runs
+        return true; // this should never happen, avoid compilation errors
     }
 
     public static void main(String[] args) throws IOException {
@@ -69,20 +68,19 @@ public class L14_lifeguards {
         String problemName = "lifeguards";
         Scanner sc = new Scanner(new File(problemName + ".in"));
 
-        int numCows = sc.nextInt();
-        cowShifts = new int[numCows][2];
-        for (int i=0; i<numCows; i++) {
-            for (int j=0; j<2; j++) {
-                cowShifts[i][j] = sc.nextInt();
-            }
+        numLifeguards = sc.nextInt();
+        lifeguardShifts = new int[numLifeguards][2];
+        for (int i = 0; i< numLifeguards; i++) {
+            lifeguardShifts[i][0] = sc.nextInt();
+            lifeguardShifts[i][1] = sc.nextInt();
         }
 
         // algorithm
-        int maxTime = lifeguards();
+        int numLifeguardTime = lifeguards();
 
         // output
         PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));
-        out.println(maxTime);
+        out.println(numLifeguardTime);
         out.close();
     }
 }
