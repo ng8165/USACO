@@ -1,4 +1,5 @@
 // Diamond Collector - USACO Bronze US Open 2016 (http://www.usaco.org/index.php?page=viewproblem2&cpid=639)
+// This problem was completed on November 21, 2020, in 27 minutes, with all 10/10 test cases passed (second try)
 
 import java.io.File;
 import java.io.FileWriter;
@@ -7,49 +8,53 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class L6_diamond {
-    public static int diamond(int numDiamonds, int K, int[] diamondSizes) {
+public class diamond_open2016 {
+    static int numDiamonds;
+    static int sizeDifference;
+    static int[] diamondSizes;
+
+    public static int diamond() {
         Arrays.sort(diamondSizes);
+        int maxDiamonds = 0;
 
-        int maxCnt = Integer.MIN_VALUE;
+        for (int i=0; i<numDiamonds; i++) {
+            int startingDiamond = diamondSizes[i];
+            int currDiamonds = 1;
 
-        for (int i=0; i<numDiamonds-1; i++) { // changing start diamond
-            int cnt = 1;
-            int rangeEnd = diamondSizes[i] + K;
+            for (int j=i+1; j<numDiamonds; j++) {
+                int endingDiamond = diamondSizes[j];
 
-            for (int j=i+1; j<numDiamonds; j++) { // seeing compatible diamonds
-                if (diamondSizes[j] <= rangeEnd) {
-                    cnt++;
-                }
-                else {
+                if ((endingDiamond - startingDiamond) > sizeDifference) {
                     break;
+                } else {
+                    currDiamonds++;
                 }
             }
 
-            maxCnt = Math.max(maxCnt, cnt);
+            maxDiamonds = Math.max(maxDiamonds, currDiamonds);
         }
 
-        return maxCnt;
+        return maxDiamonds;
     }
 
     public static void main(String[] args) throws IOException {
         // input
         String problemName = "diamond";
         Scanner sc = new Scanner(new File(problemName + ".in"));
-        int numDiamonds = sc.nextInt();
-        int K = sc.nextInt();
-        int[] diamondSizes = new int[numDiamonds];
+
+        numDiamonds = sc.nextInt();
+        sizeDifference = sc.nextInt();
+        diamondSizes = new int[numDiamonds];
         for (int i=0; i<numDiamonds; i++) {
             diamondSizes[i] = sc.nextInt();
         }
 
         // algorithm
-        int maxCnt = diamond(numDiamonds, K, diamondSizes);
+        int maxDiamonds = diamond();
 
-        //output
+        // output
         PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));
-        out.println(maxCnt);
+        out.println(maxDiamonds);
         out.close();
     }
-
 }
