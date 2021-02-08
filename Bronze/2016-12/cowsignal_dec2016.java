@@ -1,4 +1,5 @@
 // The Cow-Signal - USACO Bronze December 2016 (http://www.usaco.org/index.php?page=viewproblem2&cpid=665)
+// This problem was completed on November 20, 2020, in 26 minutes, with all 10/10 test cases passed (second try)
 
 import java.io.File;
 import java.io.FileWriter;
@@ -6,57 +7,57 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
-public class L3_cowsignal {
-    public static String[] cowsignal (String[] lines, int m, int n, int k) {
-        String[] bigSignal = new String[m*k];
+public class cowsignal_dec2016 {
+    static int length;
+    static int width;
+    static int multiplier;
+    static char[][] signal;
 
-        // line repeating
-        for (int a=0; a<m; a++) {
-            for (int b=0; b<k; b++) {
-                String currLine = "";
+    public static char[][] cowsignal() {
+        char[][] modifiedSignal = new char[length*multiplier][width*multiplier];
 
-                // character repeating
-                for (int c=0; c<n; c++) {
-                    for (int d=0; d<k; d++) {
-                        currLine += lines[a].charAt(c);
-                    }
+        for (int i=0, idx1=0; i<length; i++) {
+            char[] modifiedLine = new char[width*multiplier];
+
+            for (int j=0, idx2=0; j<width; j++) {
+                for (int k=0; k<multiplier; k++) {
+                    modifiedLine[idx2++] = signal[i][j];
                 }
+            }
 
-                bigSignal[a*k+b] = currLine;
+            for (int j=0; j<multiplier; j++) {
+                modifiedSignal[idx1++] = modifiedLine;
             }
         }
-        return bigSignal;
+
+        return modifiedSignal;
     }
+
     public static void main(String[] args) throws IOException {
         // input
         String problemName = "cowsignal";
-        Scanner sc =  new Scanner(new File(problemName + ".in"));
-        int m = sc.nextInt();
-        int n = sc.nextInt();
-        int k = sc.nextInt();
-        String[] lines = new String[m];
+        Scanner sc = new Scanner(new File(problemName + ".in"));
 
-        for (int i=0; i<m; i++) {
-            lines[i] = sc.next();
+        length = sc.nextInt();
+        width = sc.nextInt();
+        multiplier = sc.nextInt();
+        signal = new char[length][width];
+        sc.nextLine();
+        for (int i=0; i<length; i++) {
+            signal[i] = sc.nextLine().toCharArray();
         }
 
         // algorithm
-        String[] bigSignal = cowsignal(lines, m, n, k);
+        char[][] modifiedSignal = cowsignal();
 
-        //output
+        // output
         PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));
-        for (int i=0; i<m*k; i++) {
-            out.println(bigSignal[i]);
+        for (int i=0; i<length*multiplier; i++) {
+            for (int j=0; j<width*multiplier; j++) {
+                out.print(modifiedSignal[i][j]);
+            }
+            out.println();
         }
         out.close();
     }
 }
-
-/*
-for (int a=0; a<m; a++)
-  for (int b=0; b<k; b++)
-    for (int c=0; c<n; c++)
-      for (int d=0; d<k; d++)
-        System.out.print(signal[i*m+j]);
-      System.out.println();
-*/ // Pseudocode
