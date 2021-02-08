@@ -1,5 +1,5 @@
 // The Great Revegetation - USACO Bronze February 2019 (http://www.usaco.org/index.php?page=viewproblem2&cpid=916)
-// This problem was completed on November 1, 2020, in 51 minutes, with all 10/10 test cases passed (first try)
+// This problem was completed on December 20, 2020, in 40 minutes, with 10/10 test cases passed (second try)
 
 import java.io.File;
 import java.io.FileWriter;
@@ -12,73 +12,59 @@ import java.util.Scanner;
 public class revegetate_feb2019 {
     static int numPastures;
     static int numCows;
-    static int[][] favoritePastures;
+    static int[][] pasturePreferences;
 
-    public static int[] revegetate() {
-        // create an output array for the grass types in pastures
-        int[] pastures = new int[numPastures+1];
-        pastures[1] = 1; // the first one will be 1 because we want the smallest number
+    static int[] pastures;
+
+    public static void revegetate() {
+        pastures[1] = 1;
 
         for (int i=2; i<=numPastures; i++) {
-            // first identify what this pasture cannot have
-            ArrayList<Integer> forbiddenGrass = new ArrayList<>();
+            pastures[i] = findSmallestPasture(i);
+        }
+    }
 
-            for (int j=1; j<i; j++) {
-                // see if any cow likes pasture j and pasture i
-                if (isPastureComboForbidden(j, i)) {
-                    forbiddenGrass.add(pastures[j]);
-                }
-            }
+    public static int findSmallestPasture(int pasture) {
+        int[] badGrass = new int[4+1];
 
-            // now set the new pasture to have the smallest available grass
-            for (int j=1; j<=4; j++) {
-                if (!isGrassForbidden(j, forbiddenGrass)) {
-                    pastures[i] = j;
-                    break;
+        for (int i=1; i<pasture; i++) {
+            int[] grassCombo = new int[] {i, pasture};
+            for (int j=0; j<numCows; j++) {
+                if (Arrays.equals(pasturePreferences[j], grassCombo)) {
+                    badGrass[i] = -1;
                 }
             }
         }
 
-        return pastures;
-    }
-    public static boolean isPastureComboForbidden(int p1, int p2) {
-        int[] pastures = {p1, p2};
-
-        for (int i=0; i<numCows; i++) {
-            if (Arrays.equals(favoritePastures[i], pastures)) {
-                return true;
+        for (int i=1; i<=4; i++) {
+            if (badGrass[i] == 0) {
+                return i;
             }
         }
 
-        return false;
-    }
-    public static boolean isGrassForbidden(int grass, ArrayList<Integer> forbiddenGrass) {
-        for (int badGrass: forbiddenGrass) {
-            if (grass == badGrass) {
-                return true;
-            }
-        }
-
-        return false;
+        return 0; // avoid compilation errors
     }
 
     public static void main(String[] args) throws IOException {
         // input
         String problemName = "revegetate";
         Scanner sc = new Scanner(new File(problemName + ".in"));
+        //Scanner sc = new Scanner(System.in);
 
         numPastures = sc.nextInt();
         numCows = sc.nextInt();
-        favoritePastures = new int[numCows][2];
+        pasturePreferences = new int[numCows][2];
+        pastures = new int[numPastures+1];
         for (int i=0; i<numCows; i++) {
-            int temp1 = sc.nextInt();
-            int temp2 = sc.nextInt();
-            favoritePastures[i][0] = Math.min(temp1, temp2);
-            favoritePastures[i][1] = Math.max(temp1, temp2);
+            int p1 = sc.nextInt();
+            int p2 = sc.nextInt();
+
+            pasturePreferences[i][0] = Math.min(p1, p2);
+            pasturePreferences[i][1] = Math.max(p1, p2);
         }
 
         // algorithm
-        int[] pastures = revegetate();
+        revegetate();
 
         // output
         PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));
@@ -86,5 +72,6 @@ public class revegetate_feb2019 {
             out.print(pastures[i]);
         }
         out.close();
+        //System.out.println();
     }
 }
