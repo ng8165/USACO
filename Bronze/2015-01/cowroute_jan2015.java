@@ -1,65 +1,74 @@
 // Cow Routing - USACO Bronze January 2015 (http://www.usaco.org/index.php?page=viewproblem2&cpid=507)
+// This problem was completed on November 28, 2020, in 17 minutes, with all 12/12 test cases passed (second try)
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Scanner;
 
-public class L5_cowroute {
+public class cowroute_jan2015 {
+    static int startingCity;
+    static int destinationCity;
+    static int numRoutes;
+    static int[] cost;
+    static int[] numStops;
+    static ArrayList<Integer>[] stops;
+
+    public static int cowroute() {
+        int minCost = Integer.MAX_VALUE;
+
+        for (int i=0; i<numRoutes; i++) {
+            int startingLoc = -1;
+            int destinationLoc = -1;
+
+            for (int j=0; j<numStops[i]; j++) {
+                if (stops[i].get(j) == startingCity) {
+                    startingLoc = j;
+                } else if (stops[i].get(j) == destinationCity) {
+                    destinationLoc = j;
+                }
+            }
+
+            if (startingLoc != -1 && destinationLoc != -1 && startingLoc < destinationLoc) {
+                minCost = Math.min(minCost, cost[i]);
+            }
+        }
+
+        if (minCost == Integer.MAX_VALUE) {
+            return -1;
+        } else {
+            return minCost;
+        }
+    }
+
     public static void main(String[] args) throws IOException {
         // input
         String problemName = "cowroute";
         Scanner sc = new Scanner(new File(problemName + ".in"));
-        int A = sc.nextInt();
-        int B = sc.nextInt();
-        int N = sc.nextInt();
+
+        startingCity = sc.nextInt();
+        destinationCity = sc.nextInt();
+        numRoutes = sc.nextInt();
+        cost = new int[numRoutes];
+        numStops = new int[numRoutes];
+        stops = new ArrayList[numRoutes];
+        for (int i=0; i<numRoutes; i++) {
+            cost[i] = sc.nextInt();
+            numStops[i] = sc.nextInt();
+            stops[i] = new ArrayList<>();
+            for (int j=0; j<numStops[i]; j++) {
+                stops[i].add(sc.nextInt());
+            }
+        }
 
         // algorithm
-        int totalCost = Integer.MAX_VALUE;
-        for (int i=0; i<N; i++) {
-            // inputs
-            int cost = sc.nextInt();
-            int totalStops = sc.nextInt();
-            int[] stops = new int[totalStops];
-            for (int j=0; j<totalStops; j++) {
-                stops[j] = sc.nextInt();
-            }
-            /*System.out.println("$" + cost + ", " + totalStops + " stops");
-            for (int j=0; j<totalStops; j++) {
-                System.out.print(stops[j] + " ");
-            }*/
+        int minCost = cowroute();
 
-            int startLoc = Integer.MAX_VALUE; // we use max value to make comparisons easier in the loop
-            int endLoc = Integer.MAX_VALUE;
-            boolean A_found = false;
-            for (int j=0; j<totalStops; j++) {
-                if (!A_found) {
-                    if (stops[j] == A) {
-                        startLoc = j;
-                        A_found = true;
-                    }
-                } else {
-                    if (stops[j] == B) {
-                        endLoc = j;
-                        break;
-                    }
-                }
-            }
-            //System.out.println("\n" + startLoc + " " + endLoc);
-            if (startLoc != Integer.MAX_VALUE && endLoc != Integer.MAX_VALUE) {
-                // if either start or end is big value, then do nothing, try next
-                totalCost = Math.min(cost, totalCost);
-            }
-        }
-
-        if (totalCost == Integer.MAX_VALUE) { // if it is the max value, change to -1 to satisfy requirements
-            totalCost = -1;
-        }
-
-        //output
+        // output
         PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));
-        out.println(totalCost);
+        out.println(minCost);
         out.close();
     }
 }
