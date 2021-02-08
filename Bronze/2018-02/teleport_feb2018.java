@@ -1,48 +1,48 @@
 // Teleportation - USACO Bronze February 2018 (http://www.usaco.org/index.php?page=viewproblem2&cpid=807)
+// This problem was completed on October 4, 2020, in 19 minutes, with all 10/10 test cases passed (second try)
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Scanner;
-import java.io.File;
 
-public class L1_teleport {
+public class teleport_feb2018 {
+    static int manureStartPos;
+    static int manureEndPos;
+    static int teleporterPos1;
+    static int teleporterPos2;
 
-    public static int teleport(int startLoc, int endLoc, int teleport1, int teleport2) {
-        /*
-        3 ways:
-        1) John tractors the manure from start to end
-        2) John tractors to teleporter 1 then teleports it to teleporter2 and tractors to the end
-        3) John tractors to teleporter 1 then teleports it to teleporter2 and tractors to the end
-        */
+    public static int teleporter() {
+        // there are three scenarios: don't teleport, teleport 1 to 2, or teleport 2 to 1
 
-        int[] tractorDistance = new int[3];
-        // index 0 is tractoring all the way, index 1 is tractoring to teleporter 1, index 2 is tractoring to teleporter 2
-        tractorDistance[0] = Math.abs(endLoc-startLoc);
-        tractorDistance[1] = Math.abs(teleport1-startLoc) + Math.abs(endLoc-teleport2);
-        tractorDistance[2] = Math.abs(teleport2-startLoc) + Math.abs(endLoc-teleport1);
+        // scenario 1: don't teleport, only tractors
+        int tractorDist1 = Math.abs(manureEndPos - manureStartPos);
 
-        int shortestPath=Integer.MAX_VALUE;
-        for (int i=0; i<3; i++) {
-            if (tractorDistance[i] < shortestPath) {
-                shortestPath = tractorDistance[i];
-            }
-        }
+        // scenario 2: tractor to 1, teleport to 2, then tractor from 2
+        int tractorDist2 = Math.abs(teleporterPos1 - manureStartPos) + Math.abs(manureEndPos - teleporterPos2);
 
-        return shortestPath;
+        // scenario 3: tractor to 2, teleport to 1, then tractor from 1
+        int tractorDist3 = Math.abs(teleporterPos2 - manureStartPos) + Math.abs(manureEndPos - teleporterPos1);
+
+        return Math.min(tractorDist1, Math.min(tractorDist2, tractorDist3));
     }
 
     public static void main(String[] args) throws IOException {
-        Scanner sc = new Scanner(new File("teleport.in"));
+        // input
+        String problemName = "teleport";
+        Scanner sc = new Scanner(new File(problemName + ".in"));
 
-        int startLoc = sc.nextInt();
-        int endLoc = sc.nextInt();
-        int teleport1 = sc.nextInt();
-        int teleport2 = sc.nextInt();
+        manureStartPos = sc.nextInt();
+        manureEndPos = sc.nextInt();
+        teleporterPos1 = sc.nextInt();
+        teleporterPos2 = sc.nextInt();
 
-        int tractorDistance = teleport(startLoc, endLoc, teleport1, teleport2);
+        // algorithm
+        int tractorDistance = teleporter();
 
-        PrintWriter out = new PrintWriter(new FileWriter("teleport.out"));
+        // output
+        PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));
         out.println(tractorDistance);
         out.close();
     }
