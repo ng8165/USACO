@@ -38,18 +38,13 @@ public class L2_haybales {
             int leftPos = Arrays.binarySearch(haybales, rangeLeft);
             int rightPos = Arrays.binarySearch(haybales, rangeRight);
 
-            boolean doesRightExist = true; // if there is no haybale at the right position, we should not add 1
             if (leftPos < 0) {
                 leftPos = -leftPos-1;
+                out.println(rightPos-leftPos+1);
             }
             if (rightPos < 0) {
-                doesRightExist = false;
+                // if there is no haybale at the right position, we should not add 1
                 rightPos = -rightPos-1;
-            }
-
-            if (doesRightExist) {
-                out.println(rightPos-leftPos+1);
-            } else {
                 out.println(rightPos-leftPos);
             }
         }
