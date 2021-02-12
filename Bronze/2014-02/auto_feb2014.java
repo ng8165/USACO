@@ -8,7 +8,7 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class L1_auto {
+public class L2_auto {
     static int numDictEntries;
     static int numRequests;
     static DictEntry[] dictionary;
@@ -48,17 +48,19 @@ public class L1_auto {
             int idx = sc.nextInt();
             String partialWord = sc.next();
 
+            int pos = Arrays.binarySearch(dictionary, new DictEntry(partialWord, 0));
             int output = -1;
 
-            for (int j=0; j<numDictEntries; j++) {
-                if (dictionary[j].word.startsWith(partialWord)) {
-                    int newIdx = j+idx-1;
-
-                    if (newIdx < numDictEntries && dictionary[newIdx].word.startsWith(partialWord)) {
-                        output = dictionary[newIdx].idx;
+            if (pos < 0) {
+                pos = -pos-1;
+                if (dictionary[pos].word.startsWith(partialWord)) {
+                    if (pos+idx-1 < numDictEntries && dictionary[pos+idx-1].word.startsWith(partialWord)) {
+                        output = dictionary[pos+idx-1].idx;
                     }
-
-                    break;
+                }
+            } else {
+                if (pos+idx-1 < numDictEntries && dictionary[pos+idx-1].word.startsWith(partialWord)) {
+                    output = dictionary[pos+idx-1].idx;
                 }
             }
 
