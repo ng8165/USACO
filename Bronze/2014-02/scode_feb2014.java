@@ -11,28 +11,29 @@ public class L3_scode {
     public static int scode(String encrypted) {
         int decryptionMethods = 0;
 
-        if (encrypted.length() % 2 == 0) {
+        // base case
+        if (encrypted.length() < 2 || encrypted.length() % 2 == 0) {
             return 0;
         }
 
-        // division type 1: left longer than right
+        // division type 1: left longer than right (long + short)
         String left = encrypted.substring(0, encrypted.length()/2+1);
         String right = encrypted.substring(encrypted.length()/2+1);
         if (left.startsWith(right)) {
-            decryptionMethods++;
-            decryptionMethods += scode(left);
+            decryptionMethods++; // this decryption method works
+            decryptionMethods += scode(left); // possibly to able to decrypt more
         }
         if (left.endsWith(right)) {
             decryptionMethods++;
             decryptionMethods += scode(left);
         }
 
-        // division type 2: right longer than left
+        // division type 2: right longer than left (short + long)
         left = encrypted.substring(0, encrypted.length()/2);
         right = encrypted.substring(encrypted.length()/2);
         if (right.startsWith(left)) {
-            decryptionMethods++;
-            decryptionMethods += scode(right);
+            decryptionMethods++; // this decryption method works
+            decryptionMethods += scode(right); // possibly to able to decrypt more
         }
         if (right.endsWith(left)) {
             decryptionMethods++;
