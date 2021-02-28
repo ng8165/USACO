@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Scanner;
 
@@ -18,16 +19,7 @@ public class L4_cownomics {
         int numSpottyPos = 0;
 
         for (int i=0; i<numGenomes; i++) {
-            boolean found = false;
-
-            for (char genome: plain[i]) {
-                if (spotty[i].contains(genome)) {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
+            if (Collections.disjoint(spotty[i], plain[i])) {
                 numSpottyPos++;
             }
         }
@@ -42,23 +34,21 @@ public class L4_cownomics {
 
         numCows = sc.nextInt();
         numGenomes = sc.nextInt();
-        plain = new HashSet[numGenomes];
         spotty = new HashSet[numGenomes];
+        plain = new HashSet[numGenomes];
+        for (int i=0; i<numGenomes; i++) {
+            spotty[i] = new HashSet<>();
+            plain[i] = new HashSet<>();
+        }
         for (int i=0; i<numCows; i++) {
             char[] genomes = sc.next().toCharArray();
             for (int j=0; j<numGenomes; j++) {
-                if (spotty[j] == null) {
-                    spotty[j] = new HashSet<>();
-                }
                 spotty[j].add(genomes[j]);
             }
         }
         for (int i=0; i<numCows; i++) {
             char[] genomes = sc.next().toCharArray();
             for (int j=0; j<numGenomes; j++) {
-                if (plain[j] == null) {
-                    plain[j] = new HashSet<>();
-                }
                 plain[j].add(genomes[j]);
             }
         }
