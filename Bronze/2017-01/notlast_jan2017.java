@@ -1,83 +1,65 @@
 // Don't Be Last! - USACO Bronze January 2017 (http://www.usaco.org/index.php?page=viewproblem2&cpid=687)
-// This problem was done on Sunday, August 30, 2020, in 52 minutes, with all 11 test cases passed (first try)
+// This problem was completed as homework for the USACO Silver 1 Class on 3/6/21.
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
-public class notlast_jan2017 {
-    static String[] cowNames = {"Bessie", "Elsie", "Daisy", "Gertie", "Annabelle", "Maggie", "Henrietta"};
-
-    public static String notlast(int[] milkAmounts_unsorted) {
-        int numCows = 7;
-
-        // find the cow that produces the smallest amount of milk
-        int[] milkAmounts = milkAmounts_unsorted.clone();
-        Arrays.sort(milkAmounts);
-
-        int minMilk = milkAmounts[0];
-
-        // find the cow that produces the second-smallest amount of milk
-
-        for (int i=0; i<numCows; i++) {
-            int cowMilk = milkAmounts[i];
-            if (cowMilk > minMilk) {
-                // see if there is a tie (as in more than one optimal cow)
-                if (i<numCows-1 && cowMilk == milkAmounts[i+1]) {
-                    return "Tie";
-                }
-
-                // otherwise there is only one optimal cow
-                return findCowName(cowMilk, milkAmounts_unsorted);
-            }
-        }
-
-        // the only other case is that there is no optimal cow
-        return "Tie";
-    }
-
-    public static int findCowIndex(String cow) {
-        for (int i=0; i<cowNames.length; i++) {
-            if (cow.equals(cowNames[i])) {
-                return i;
-            }
-        }
-
-        return 0; // this should never happen, just so program runs
-    }
-    public static String findCowName(int milkAmount, int[] milkAmounts) {
-        for (int i=0; i<milkAmounts.length; i++) {
-            if (milkAmount == milkAmounts[i]) {
-                return cowNames[i];
-            }
-        }
-
-        return ""; // this should never happen, just so program runs
-    }
-
+public class L5_notlast {
     public static void main(String[] args) throws IOException {
         // input
         String problemName = "notlast";
         Scanner sc = new Scanner(new File(problemName + ".in"));
 
         int numEntries = sc.nextInt();
-        int[] milkAmounts = new int[7];
-        for (int i=0; i<numEntries; i++) {
-            String name = sc.next();
-            int cowIndex = findCowIndex(name);
-            milkAmounts[cowIndex] += sc.nextInt();
-        }
 
         // algorithm
-        String bestCow = notlast(milkAmounts);
+        HashMap<String, Integer> milkLog = new HashMap<>();
+        milkLog.put("Bessie", 0);
+        milkLog.put("Elsie", 0);
+        milkLog.put("Daisy", 0);
+        milkLog.put("Gertie", 0);
+        milkLog.put("Annabelle", 0);
+        milkLog.put("Maggie", 0);
+        milkLog.put("Henrietta", 0);
+
+        // add all log entries into HashMap
+        for (int i=0; i<numEntries; i++) {
+            String cow = sc.next();
+            milkLog.put(cow, milkLog.get(cow)+sc.nextInt());
+        }
+
+        // find second smallest milk production
+        int minMilk = Integer.MAX_VALUE, secondMinMilk = Integer.MAX_VALUE;
+        for (int milk: milkLog.values()) {
+            if (milk < minMilk) {
+                secondMinMilk = minMilk;
+                minMilk = milk;
+            } else if (milk > minMilk && milk < secondMinMilk) {
+                secondMinMilk = milk;
+            }
+        }
+
+        // find cows with second smallest milk production
+        ArrayList<String> secondMinCows = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry: milkLog.entrySet()) {
+            if (entry.getValue() == secondMinMilk) {
+                secondMinCows.add(entry.getKey());
+            }
+        }
 
         // output
         PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));
-        out.println(bestCow);
+        if (secondMinCows.size() == 1) {
+            out.println(secondMinCows.get(0));
+        } else {
+            out.println("Tie");
+        }
         out.close();
     }
 }
