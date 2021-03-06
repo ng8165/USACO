@@ -1,53 +1,38 @@
 // Record Keeping - USACO Bronze December 2013 (http://www.usaco.org/index.php?page=viewproblem2&cpid=358)
+// This problem was completed as classwork for the USACO Silver 1 Class on 3/6/21.
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Scanner;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Scanner;
 
-public class L6_records {
+public class L5_records {
     public static void main(String[] args) throws IOException {
         // input
         String problemName = "records";
         Scanner sc = new Scanner(new File(problemName + ".in"));
-        int numGroups = sc.nextInt();
-        sc.nextLine(); // to move cursor to next line
-        String[] cowGroups = new String[numGroups];
 
         // algorithm
+        HashMap<String, Integer> entryFreq = new HashMap<>();
+        int numGroups = sc.nextInt();
+        int maxFrequency = 0;
+
         for (int i=0; i<numGroups; i++) {
-            String[] orderedGroup = new String[3];
+            String[] group = new String[] {sc.next(), sc.next(), sc.next()};
+            Arrays.sort(group);
+            String groupString = Arrays.toString(group);
 
-            for (int j=0; j<3; j++) {
-                orderedGroup[j] = sc.next();
-            }
+            entryFreq.put(groupString, entryFreq.getOrDefault(groupString, 0)+1);
 
-            Arrays.sort(orderedGroup);
-
-            cowGroups[i] = orderedGroup[0] + " " + orderedGroup[1] + " " + orderedGroup[2];
+            maxFrequency = Math.max(maxFrequency, entryFreq.get(groupString));
         }
 
-        Arrays.sort(cowGroups);
-
-        int mode = Integer.MIN_VALUE;
-        int cnt=1;
-
-        for (int i=0; i<numGroups-1; i++) {
-            if (cowGroups[i].equals(cowGroups[i+1])) {
-                cnt++;
-            } else {
-                mode = Math.max(cnt, mode);
-                cnt = 1;
-            }
-        }
-
-        mode = Math.max(cnt, mode);
-
-        //output
+        // output
         PrintWriter out = new PrintWriter(new FileWriter(problemName + ".out"));
-        out.println(mode);
+        out.println(maxFrequency);
         out.close();
     }
 }
