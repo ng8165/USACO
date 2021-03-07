@@ -1,75 +1,76 @@
-// Cow Routing II - USACO Bronze January 2015 (http://www.usaco.org/index.php?page=viewproblem2&cpid=508)
-// This problem was completed on November 28, 2020, in 1 hour 28 minutes, with 7/10 test cases passed (first try)
-// This problem was completed on November 29, 2020, during review, with all 10/10 test cases passed (review)
-// Do again: pretty hard to get it right on first try (this likely barely passed all test cases)
+// Cow Routing 2 - USACO Bronze January 2015 (http://www.usaco.org/index.php?page=viewproblem2&cpid=508)
+// This problem was completed as homework for the USACO Silver 1 Class on 3/6/21.
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
-public class cowroute2_jan2015 {
-    static int startingCity;
-    static int destinationCity;
-    static int numRoutes;
+public class L5_cowroute {
+    static int origin;
+    static int destination;
+    static int numFlights;
     static int[] cost;
-    static int[] numStops;
-    static ArrayList<Integer>[] stops;
+    static ArrayList<Integer>[] flights;
+    static HashMap<Integer, Integer> fromOrigin = new HashMap<>(); // key = city, value = flight idx
+    static HashMap<Integer, Integer> toDestination = new HashMap<>();
 
     public static int cowroute() {
-        int minCost = Integer.MAX_VALUE;
+        for (int i=0; i<numFlights; i++) {
+            // find cities where the origin has flights to
+            boolean originFound = false;
+            for (int city: flights[i]) {
+                if (origin == city) {
+                    originFound = true;
+                    continue;
+                }
 
-        for (int i=0; i<numRoutes; i++) {
-            int startIdx = stops[i].indexOf(startingCity);
-            int destIdx = stops[i].indexOf(destinationCity);
+                if (originFound) {
+                    // ensure that this flight is the cheapest way to get to that city
+                    if (!fromOrigin.containsKey(city)) {
+                        fromOrigin.put(city, i);
+                    } else if (cost[i] < cost[fromOrigin.get(city)]) {
+                        fromOrigin.put(city, i);
+                    }
+                }
+            }
 
-            System.out.println(i + ": " + startIdx + ", " + destIdx);
+            // find cities which have flights to destination
+            boolean destinationFound = false;
+            for (int j=flights[i].size()-1; j>=0; j--) {
+                int city = flights[i].get(j);
+                if (destination == city) {
+                    destinationFound = true;
+                    continue;
+                }
 
-            if (startIdx != -1 && destIdx != -1 && startIdx < destIdx) {
-                // the route can be a direct route and will not be considered for non-direct routes
-                System.out.println("found direct cost: " + cost[i]);
-                minCost = Math.min(minCost, cost[i]);
-            } else if (startIdx != -1) {
-                // we can start from here, but it isn't direct, so let's try non-direct flights
-                for (int j=startIdx+1; j<numStops[i]; j++) {
-                    int flight2Cost = findMinCostDirect(stops[i].get(j), destinationCity);
-
-                    if (flight2Cost != -1) {
-                        int costNonDirect = cost[i] + flight2Cost;
-                        System.out.println("found non-direct cost from city " + stops[i].get(j) + ": " + costNonDirect);
-
-                        minCost = Math.min(minCost, costNonDirect);
+                if (destinationFound) {
+                    // ensure that this flight is the cheapest way to get to destination
+                    if (!toDestination.containsKey(city)) {
+                        toDestination.put(city, i);
+                    } else if (cost[i] < cost[toDestination.get(city)]) {
+                        toDestination.put(city, i);
                     }
                 }
             }
         }
 
-        if (minCost == Integer.MAX_VALUE) {
-            return -1;
-        } else {
-            return minCost;
-        }
-    }
-
-    public static int findMinCostDirect(int starting, int destination) {
+        // find minimum cost
         int minCost = Integer.MAX_VALUE;
+        for (Map.Entry<Integer, Integer> entry: fromOrigin.entrySet()) {
+            int city = entry.getKey();
+            int flightIdx = entry.getValue();
 
-        for (int i=0; i<numRoutes; i++) {
-            int startingLoc = -1;
-            int destinationLoc = -1;
-
-            for (int j=0; j<numStops[i]; j++) {
-                if (stops[i].get(j) == starting) {
-                    startingLoc = j;
-                } else if (stops[i].get(j) == destination) {
-                    destinationLoc = j;
-                }
-            }
-
-            if (startingLoc != -1 && destinationLoc != -1 && startingLoc < destinationLoc) {
-                minCost = Math.min(minCost, cost[i]);
+            if (city == destination) {
+                // direct flight
+                minCost = Math.min(minCost, cost[flightIdx]);
+            } else if (toDestination.containsKey(city) && flightIdx != toDestination.get(city)) {
+                // city is present in both HashMaps (ok for transit) and idx are not the same
+                minCost = Math.min(minCost, cost[flightIdx] + cost[toDestination.get(city)]);
             }
         }
 
@@ -85,18 +86,18 @@ public class cowroute2_jan2015 {
         String problemName = "cowroute";
         Scanner sc = new Scanner(new File(problemName + ".in"));
 
-        startingCity = sc.nextInt();
-        destinationCity = sc.nextInt();
-        numRoutes = sc.nextInt();
-        cost = new int[numRoutes];
-        numStops = new int[numRoutes];
-        stops = new ArrayList[numRoutes];
-        for (int i=0; i<numRoutes; i++) {
+        origin = sc.nextInt();
+        destination = sc.nextInt();
+        numFlights = sc.nextInt();
+        cost = new int[numFlights];
+        flights = new ArrayList[numFlights];
+        for (int i=0; i<numFlights; i++) {
             cost[i] = sc.nextInt();
-            numStops[i] = sc.nextInt();
-            stops[i] = new ArrayList<>();
-            for (int j=0; j<numStops[i]; j++) {
-                stops[i].add(sc.nextInt());
+
+            int numCities = sc.nextInt();
+            flights[i] = new ArrayList<>();
+            for (int j=0; j<numCities; j++) {
+                flights[i].add(sc.nextInt());
             }
         }
 
