@@ -12,7 +12,6 @@ import java.util.Scanner;
 public class L7_meeting {
     static class Field {
         int id;
-        int timeId;
         ArrayList<Field> adjList;
 
         Field(int id) {
@@ -74,7 +73,6 @@ public class L7_meeting {
             int destination = sc.nextInt()-1;
 
             fields[origin].adjList.add(fields[destination]);
-            fields[origin].timeId = i;
             pathID[i][0] = origin;
             pathID[i][1] = destination;
 
