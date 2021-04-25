@@ -9,25 +9,24 @@ public class L12_censor {
         String problemName = "censor";
         BufferedReader br = new BufferedReader(new FileReader(problemName + ".in"));
 
-        StringBuilder str = new StringBuilder(br.readLine());
-        String substr = br.readLine();
+        char[] charArr = br.readLine().toCharArray();
+        String str = br.readLine();
 
         // algorithm
-        int substrIdx = 0;
+        StringBuilder sb = new StringBuilder();
 
-        while (true) {
-            substrIdx = str.indexOf(substr, substrIdx-substr.length()); // when you delete you may introduce another substr write where you were
+        for (char ch: charArr) {
+            sb.append(ch);
 
-            if (substrIdx > -1) {
-                str.delete(substrIdx, substrIdx+substr.length());
-            } else {
-                break;
+            int length = sb.length();
+            if (length > str.length() && sb.substring(length-str.length()).equals(str)) {
+                sb.delete(length-str.length(), length);
             }
         }
 
         // output
         PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(problemName + ".out")));
-        pw.println(str.toString());
+        pw.println(sb);
 
         br.close();
         pw.close();
