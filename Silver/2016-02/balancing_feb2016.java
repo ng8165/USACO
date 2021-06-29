@@ -1,11 +1,13 @@
 // Load Balancing - USACO Bronze February 2016 (http://www.usaco.org/index.php?page=viewproblem2&cpid=617)
-// This problem was completed as classwork for the USACO Silver 2 Class on 6/27/21.
+// This problem was completed as classwork for the USACO Silver 2 Class on 6/28/21.
+// This implementation was influenced by Cararra's video on YouTube (https://www.youtube.com/watch?v=bEEbslngvxI).
 
 import java.io.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.StringTokenizer;
 
 public class L16_balancing {
-    static class Cow {
+    static class Cow implements Comparable<Cow>{
         int x;
         int y;
 
@@ -17,6 +19,11 @@ public class L16_balancing {
         @Override
         public String toString() {
             return "(" + x + ", " + y + ")";
+        }
+
+        @Override
+        public int compareTo(Cow o) {
+            return x-o.x;
         }
     }
 
@@ -30,61 +37,49 @@ public class L16_balancing {
 
         int[] x = new int[numCows];
         int[] y = new int[numCows];
-        Cow[] cowsX = new Cow[numCows];
-        Cow[] cowsY = new Cow[numCows];
-
-        PriorityQueue<Cow> pqX = new PriorityQueue<>(new Comparator<Cow>() {
-            @Override
-            public int compare(Cow o1, Cow o2) {
-                return o1.x - o2.x;
-            }
-        });
-        PriorityQueue<Cow> pqY = new PriorityQueue<>(new Comparator<Cow>() {
-            @Override
-            public int compare(Cow o1, Cow o2) {
-                return o1.y - o2.y;
-            }
-        });
+        Cow[] cows = new Cow[numCows];
 
         for (int i=0; i<numCows; i++) {
             st = new StringTokenizer(br.readLine());
-            x[i] = Integer.parseInt(st.nextToken());
-            y[i] = Integer.parseInt(st.nextToken());
-
-            pqX.add(new Cow(x[i], y[i]));
-            pqY.add(new Cow(x[i], y[i]));
+            cows[i] = new Cow(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
         }
-
-        for (int i=0; i<numCows; i++) {
-            cowsX[i] = pqX.remove();
-            cowsY[i] = pqY.remove();
-        }
-
-        //System.out.println(Arrays.toString(cowsX));
-        //System.out.println(Arrays.toString(cowsY));
 
         // algorithm
+        Arrays.sort(cows);
+        //System.out.println(Arrays.toString(cows));
+
         int minM = Integer.MAX_VALUE;
 
-        for (Cow cowX: cowsX) {
-            int xWall = cowX.x+1;
-            for (Cow cowY: cowsY) {
-                int yWall = cowY.y+1;
-                int q1 = 0, q2 = 0, q3 = 0, q4 = 0;
+        for (int i=0; i<numCows-1; i++) {
+            int yWall = cows[i].y+1;
 
-                for (int i=0; i<numCows; i++) {
-                    if (x[i] > xWall && y[i] > yWall) {
-                        q1++;
-                    } else if (x[i] < xWall && y[i] > yWall) {
+            // count cows while xWall is at the very left
+            int q1 = 0, q2 = 0, q3 = 0, q4 = 0;
+            for (int j=0; j<numCows; j++) {
+                if (cows[j].y > yWall) {
+                    q1++;
+                } else {
+                    q4++;
+                }
+            }
+
+            for (int j=0; j<numCows-1; j++) {
+                while (true) {
+                    if (cows[j].y > yWall) {
+                        q1--;
                         q2++;
-                    } else if (x[i] < xWall && y[i] < yWall) {
-                        q3++;
                     } else {
-                        q4++;
+                        q4--;
+                        q3++;
+                    }
+
+                    if (cows[j].x != cows[j+1].x) {
+                        break;
+                    } else {
+                        j++;
                     }
                 }
-
-                int M = Math.max(q1, Math.max(q2, Math.max(q3, q4)));
+                int M = Math.max(Math.max(q1, q2), Math.max(q3, q4));
                 minM = Math.min(minM, M);
             }
         }
