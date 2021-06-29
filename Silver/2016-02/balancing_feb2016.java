@@ -1,13 +1,14 @@
 // Load Balancing - USACO Bronze February 2016 (http://www.usaco.org/index.php?page=viewproblem2&cpid=617)
 // This problem was completed as classwork for the USACO Silver 2 Class on 6/28/21.
-// This implementation was influenced by Cararra's video on YouTube (https://www.youtube.com/watch?v=bEEbslngvxI).
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 public class L16_balancing {
-    static class Cow implements Comparable<Cow>{
+    static class Cow implements Comparable<Cow> {
         int x;
         int y;
 
@@ -23,7 +24,7 @@ public class L16_balancing {
 
         @Override
         public int compareTo(Cow o) {
-            return x-o.x;
+            return x - o.x;
         }
     }
 
@@ -35,52 +36,58 @@ public class L16_balancing {
 
         int numCows = Integer.parseInt(st.nextToken());
 
-        int[] x = new int[numCows];
-        int[] y = new int[numCows];
-        Cow[] cows = new Cow[numCows];
+        Cow[] cowsX = new Cow[numCows];
+        TreeMap<Integer, Integer> cowsY = new TreeMap<>(); // key: y coordinate, value: number of cows with same y
 
         for (int i=0; i<numCows; i++) {
             st = new StringTokenizer(br.readLine());
-            cows[i] = new Cow(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()));
+            int x = Integer.parseInt(st.nextToken());
+            int y = Integer.parseInt(st.nextToken());
+
+            cowsX[i] = new Cow(x, y);
+            cowsY.put(y, cowsY.getOrDefault(y,0)+1);
         }
 
         // algorithm
-        Arrays.sort(cows);
-        //System.out.println(Arrays.toString(cows));
+        Arrays.sort(cowsX);
+        //System.out.println(Arrays.toString(cowsX));
+        //System.out.println(cowsY);
 
         int minM = Integer.MAX_VALUE;
+        int countBelow = 0; // prefix count
 
-        for (int i=0; i<numCows-1; i++) {
-            int yWall = cows[i].y+1;
+        for (Map.Entry<Integer, Integer> cowCount: cowsY.entrySet()) { // set horizontal fence, then try vertical fences
+            countBelow += cowCount.getValue();
 
-            // count cows while xWall is at the very left
-            int q1 = 0, q2 = 0, q3 = 0, q4 = 0;
-            for (int j=0; j<numCows; j++) {
-                if (cows[j].y > yWall) {
-                    q1++;
+            // initialize quadrants to when the vertical fence is at the very left
+            int q1 = numCows-countBelow;
+            int q2 = 0;
+            int q3 = 0;
+            int q4 = countBelow;
+
+            int hFence = cowCount.getKey()+1;
+
+            int i=0;
+            while (i<numCows-1) {
+                // shift from right quadrants to left quadrants
+                if (cowsX[i].y > hFence) {
+                    q1--;
+                    q2++;
                 } else {
-                    q4++;
+                    q4--;
+                    q3++;
                 }
-            }
 
-            for (int j=0; j<numCows-1; j++) {
-                while (true) {
-                    if (cows[j].y > yWall) {
-                        q1--;
-                        q2++;
-                    } else {
-                        q4--;
-                        q3++;
-                    }
-
-                    if (cows[j].x != cows[j+1].x) {
-                        break;
-                    } else {
-                        j++;
-                    }
+                // skip M update if next cow has the same x
+                if (cowsX[i].x == cowsX[i+1].x) {
+                    i++;
+                    continue;
                 }
+
                 int M = Math.max(Math.max(q1, q2), Math.max(q3, q4));
                 minM = Math.min(minM, M);
+
+                i++;
             }
         }
 
