@@ -1,2 +1,2 @@
 # USACOSilver
-This repository stores my USACO Silver practice Java code.
+This repository stores my USACO Silver practice Java and C++ code.
