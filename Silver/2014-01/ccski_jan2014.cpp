@@ -20,11 +20,24 @@ void floodfill(int r, int c, int D) {
         int nr = r + dir[i][0];
         int nc = c + dir[i][1];
 
-        if (isInBounds(nr, nc) && !visited[nr][nc] && abs(elev[r][c] -elev[nr][nc]) <= D) {
-            elev[nr][nc] = D;
+        if (isInBounds(nr, nc) && !visited[nr][nc] && abs(elev[r][c] - elev[nr][nc]) <= D) {
             floodfill(nr, nc, D);
         }
     }
+}
+
+bool check(int D) {
+    memset(visited, false, sizeof(visited));
+
+    floodfill(way[0].first, way[0].second, D);
+
+    for (auto w: way) {
+        if (!visited[w.first][w.second]) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 int main() {
@@ -33,46 +46,32 @@ int main() {
 
     fin >> m >> n;
     int left = 0, right = 0;
+
     for (int i=0; i<m; i++) {
         for (int j=0; j<n; j++) {
-            cin >> elev[i][j];
+            fin >> elev[i][j];
             right = max(right, elev[i][j]);
         }
     }
+
     for (int i=0; i<m; i++) {
         for (int j=0; j<n; j++) {
-            int r, c; cin >> r >> c;
-            way.push_back(make_pair(r, c));
+            bool isWay; fin >> isWay;
+            if (isWay) way.push_back(make_pair(i, j));
         }
     }
 
-    int sr = way[0].first, sc = way[0].second;
-
-    int result = -1;
+    int result = right;
 
     while (left <= right) {
         int mid = (left + right) / 2;
-
-        cout << "trying " << mid << endl;
-        
-        floodfill(sr, sc, mid);
-
-        bool ok = true;
-        for (auto w: way) {
-            if (!visited[w.first][w.second]) {
-                ok = false;
-                break;
-            }
-        }
-
-        if (ok) {
-            result = right;
-            right = mid - 1;
+                
+        if (check(mid)) {
+            result = min(result, mid);
+            right = mid-1;
         } else {
-            left = mid + 1;
+            left = mid+1;
         }
-
-        memset(visited, false, sizeof(visited));
     }
 
     fout << result << endl;
