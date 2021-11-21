@@ -1,3 +1,6 @@
+// Cross Country Skiing
+// USACO Silver January 2014: http://www.usaco.org/index.php?page=viewproblem2&cpid=380
+
 #include <bits/stdc++.h>
 
 using namespace std;
