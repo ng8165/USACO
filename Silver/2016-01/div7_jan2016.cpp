@@ -1,38 +1,38 @@
-#include <fstream>
+// Subsequences Summing to Sevens
+// USACO Silver January 2016: http://www.usaco.org/index.php?page=viewproblem2&cpid=595
+
+#include <bits/stdc++.h>
 
 using namespace std;
 
 typedef long long ll;
+typedef pair<int, int> pii;
+
+int n;
+ll psum[50001];
+
+map<int, int> mods;
 
 int main() {
     ifstream fin("div7.in");
     ofstream fout("div7.out");
-    int n;
+
     fin >> n;
+    for (int i=1; i<=n; i++) {
+        fin >> psum[i];
+        psum[i] += psum[i-1];
+    }
 
-    int input[n+1];
-    for (int i=1; i<=n; i++) fin >> input[i];
-
-    ll prefixSum = 0;
     int result = 0;
-    pair<int, int> mod[7];
 
     for (int i=1; i<=n; i++) {
-        prefixSum += input[i];
+        int mod = psum[i] % 7;
 
-        int modIdx = ((prefixSum%7)+7)%7;
-
-        int& minIdx = mod[modIdx].first;
-        int& maxIdx = mod[modIdx].second;
-
-        if (minIdx == 0 && maxIdx == 0) {
-            minIdx = i; maxIdx = i;
+        if (mods.count(mod)) {
+            result = max(result, i-mods[mod]);
         } else {
-            minIdx = min(minIdx, i);
-            maxIdx = max(maxIdx, i);
+            mods[mod] = i;
         }
-
-        result = max(result, mod[modIdx].second-mod[modIdx].first);
     }
 
     fout << result << endl;
