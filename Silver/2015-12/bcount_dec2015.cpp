@@ -1,50 +1,35 @@
-#include <fstream>
+// Breed Counting
+// USACO Silver December 2015: http://www.usaco.org/index.php?page=viewproblem2&cpid=572
+
+#include <bits/stdc++.h>
 
 using namespace std;
 
-struct CowCount {
-    int h, g, j;
-
-    CowCount() {
-        h = g = j = 0;
-    }
-};
+int n, q;
+int psum[4][100001]; // psum[i][j] = how many cows with breed i in first j cows
 
 int main() {
     ifstream fin("bcount.in");
     ofstream fout("bcount.out");
 
-    int n, q;
     fin >> n >> q;
 
-    CowCount prefix[n+5];
-    prefix[0] = CowCount();
-
     for (int i=1; i<=n; i++) {
-        int breed;
-        fin >> breed;
+        for (int j=1; j<=3; j++)
+            psum[j][i] = psum[j][i-1];
 
-        prefix[i] = prefix[i-1];
+        int breed; fin >> breed;
+        psum[breed][i]++;
+    }
 
-        if (breed == 1) {
-            prefix[i].h++;
-        } else if (breed == 2) {
-            prefix[i].g++;
-        } else {
-            prefix[i].j++;
+    for (int i=1; i<=q; i++) {
+        int a, b; fin >> a >> b;
+        
+        for (int j=1; j<=3; j++) {
+            fout << psum[j][b] - psum[j][a-1];
+            if (j < 3) fout << " ";
         }
+        
+        fout << endl;
     }
-
-    for (int i=0; i<q; i++) {
-        int l, r;
-        fin >> l >> r;
-
-        int h = prefix[r].h-prefix[l-1].h;
-        int g = prefix[r].g-prefix[l-1].g;
-        int j = prefix[r].j-prefix[l-1].j;
-
-        fout << h << " " << g << " " << j << endl;
-    }
-
-    return 0;
 }
