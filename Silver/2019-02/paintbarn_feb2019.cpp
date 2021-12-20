@@ -1,3 +1,6 @@
+// Painting the Barn
+// USACO Silver February 2019: http://www.usaco.org/index.php?page=viewproblem2&cpid=919
+
 #include <bits/stdc++.h>
 
 using namespace std;
