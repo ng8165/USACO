@@ -1,3 +1,6 @@
+// Remove Smallest
+// CodeForces Round #661 Division 3 Problem A: https://codeforces.com/contest/1399/problem/A
+
 #include <iostream>
 #include <algorithm>
 

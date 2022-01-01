@@ -1,3 +1,6 @@
+// Forest Queries
+// CSES Range Queries: https://cses.fi/problemset/task/1652
+
 #include <bits/stdc++.h>
 
 using namespace std;
