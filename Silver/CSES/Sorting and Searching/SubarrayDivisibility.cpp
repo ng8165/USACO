@@ -1,3 +1,6 @@
+// Subarray Divisibility
+// CSES Sorting and Searching: https://cses.fi/problemset/task/1662
+
 #include <iostream>
 #include <vector>
 

@@ -1,3 +1,6 @@
+// Minimizing Coins
+// CSES Dynamic Programming: https://cses.fi/problemset/task/1634
+
 #include <bits/stdc++.h>
 
 using namespace std;

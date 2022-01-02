@@ -1,3 +1,6 @@
+// Static Range Sum
+// Yosupo: https://judge.yosupo.jp/problem/static_range_sum
+
 #include <iostream>
 
 using namespace std;

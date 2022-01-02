@@ -1,3 +1,6 @@
+// Coin Combinations I
+// CSES Dynamic Programming: https://cses.fi/problemset/task/1635
+
 #include <bits/stdc++.h>
 
 using namespace std;

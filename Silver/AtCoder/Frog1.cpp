@@ -1,3 +1,6 @@
+// Frog 1
+// AtCoder Educational DP Contest: https://atcoder.jp/contests/dp/tasks/dp_a
+
 #include <bits/stdc++.h>
 
 using namespace std;

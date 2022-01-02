@@ -1,3 +1,6 @@
+// Removing Digits
+// CSES Dynamic Programming: https://cses.fi/problemset/task/1637
+
 #include <bits/stdc++.h>
 
 using namespace std;

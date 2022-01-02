@@ -1,3 +1,6 @@
+// Book Shop
+// CSES Dynamic Programming: https://cses.fi/problemset/task/1158
+
 #include <bits/stdc++.h>
 
 using namespace std;
