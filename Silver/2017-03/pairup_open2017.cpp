@@ -1,3 +1,7 @@
+// Paired Up
+// USACO Silver US Open 2017: http://www.usaco.org/index.php?page=viewproblem2&cpid=738
+// XJOI Problem 15309: https://xjoi.net/contest/3335/problem/3?locale=en
+
 #include <bits/stdc++.h>
 
 using namespace std;

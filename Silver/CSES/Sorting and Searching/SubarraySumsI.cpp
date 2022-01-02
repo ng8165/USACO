@@ -1,5 +1,6 @@
 // Subarray Sums I
 // CSES Sorting and Searching: https://cses.fi/problemset/task/1660
+// XJOI Problem 14111: https://xjoi.net/contest/3353/problem/1?locale=en
 
 #include <bits/stdc++.h>
 
