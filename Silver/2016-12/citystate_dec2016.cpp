@@ -1,3 +1,6 @@
+// Cities and States
+// USACO Silver December 2016: http://www.usaco.org/index.php?page=viewproblem2&cpid=667
+
 #include <bits/stdc++.h>
 
 using namespace std;
@@ -27,7 +30,7 @@ int main() {
 
     for (int i=0; i<s; i++) {
         for (int j=i+1; j<s; j++) {
-            result += min(cities[i][j], cities[j][i]);
+            result += cities[i][j] * cities[j][i];
         }
     }
 

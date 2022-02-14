@@ -1,34 +1,37 @@
 // Subarray Divisibility
 // CSES Sorting and Searching: https://cses.fi/problemset/task/1662
 
-#include <iostream>
-#include <vector>
+#include <bits/stdc++.h>
 
 using namespace std;
 
-typedef long long ll;
+int n;
+int prevSum[200000];
+
+int mod(int num) {
+    int m = num%n;
+    if (m < 0) return m+n;
+    else return m;
+}
 
 int main() {
-    int n;
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+
     cin >> n;
 
-    int input[n];
-    for (int i=0; i<n; i++) cin >> input[i];
-    
-    vector<int> modFreq(n);
-    modFreq[0] = 1;
+    int psum = 0;
+    long long result = 0;
 
-    ll pSum = 0;
-    ll result = 0;
+    for (int i=0; i<n; i++) {
+        int a; cin >> a;
+        psum = mod(psum + a);
 
-    for (int num: input) {
-        pSum += num;
+        if (psum == 0) result++;
 
-        int modIdx = ((pSum%n)+n)%n;
+        result += prevSum[psum];
 
-        result += modFreq[modIdx];
-
-        modFreq[modIdx]++;
+        prevSum[psum]++;
     }
 
     cout << result << endl;

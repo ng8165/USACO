@@ -5,69 +5,83 @@
 
 using namespace std;
 
-int n, k, r;
-vector<pair<int, int>> roads[105][105];
-bool hasCow[105][105];
-int cows[105][2];
+int N, K, R;
+char farm[200][200]; // x = road, c = cow, else = empty
+int cows[100][2];
 
-int nonDistant;
-const int dir[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
-bool visited[105][105];
+bool visited[200][200];
 
-inline bool isInBounds(int row, int col) {
-    return row >= 1 && row <= n && col >= 1 && col <= n;
+inline bool isInBounds(int& r, int& c) {
+    return r >= 0 && r < N && c >= 0 && c < N;
 }
 
-bool isFound(int fr, int fc, int dr, int dc) {
-    for (auto dest: roads[fr][fc]) {
-        if (dest.first == dr && dest.second == dc) return true;
-    }
+// returns number of cows that were reached
+int floodfill(int r, int c) {
+    if (!isInBounds(r, c) || visited[r][c] || farm[r][c] == 'x') return 0;
 
-    return false;
+    visited[r][c] = true;
+
+    int sum = farm[r][c] == 'c' ? 1 : 0;
+    sum += floodfill(r-1, c);
+    sum += floodfill(r+1, c);
+    sum += floodfill(r, c-1);
+    sum += floodfill(r, c+1);
+
+    return sum;
 }
 
-void floodfill(int row, int col) {
-    visited[row][col] = true;
-    if (hasCow[row][col]) nonDistant++;
-
-    for (int i=0; i<4; i++) {
-        int nrow = row + dir[i][0];
-        int ncol = col + dir[i][1];
-
-        if (isInBounds(nrow, ncol) && !visited[nrow][ncol] && !isFound(row, col, nrow, ncol)) {
-            floodfill(nrow, ncol);
-        }
-    }
+// converts 1-indexed to 0-indexed, then doubles
+inline void convert(int& i) {
+    i = (i-1)*2;
 }
 
 int main() {
     ifstream fin("countcross.in");
     ofstream fout("countcross.out");
 
-    fin >> n >> k >> r;
+    fin >> N >> K >> R;
+    N *= 2;
 
-    for (int i=1; i<=r; i++) {
+    // insert roads into farm
+    for (int i=0; i<R; i++) {
         int r1, c1, r2, c2;
         fin >> r1 >> c1 >> r2 >> c2;
-        roads[r1][c1].push_back({r2, c2});
-        roads[r2][c2].push_back({r1, c1});
+        convert(r1); convert(c1); convert(r2); convert(c2);
+
+        // ensure that smaller coordinate is (r1, c1) and larger is (r2, c2)
+        if (r1+c1 > r2+c2) {
+            swap(r1, r2);
+            swap(c1, c2);
+        }
+
+        if (r1 == r2) {
+            // same row, so vertical block
+            farm[r1][c1+1] = 'x';
+            farm[r1+1][c1+1] = 'x';
+        } else {
+            // same columns, so horizontal block
+            farm[r1+1][c1] = 'x';
+            farm[r1+1][c1+1] = 'x';
+        }
     }
 
-    for (int i=1; i<=k; i++) {
-        fin >> cows[i][0] >> cows[i][1];
-        hasCow[cows[i][0]][cows[i][1]] = true;
+    // insert cows into farm
+    for (int i=0; i<K; i++) {
+        int &r = cows[i][0], &c = cows[i][1];
+        fin >> r >> c; convert(r); convert(c);
+
+        farm[r][c] = 'c';
     }
 
+    // floodfill from each cow
     int result = 0;
 
-    for (int i=1; i<=k; i++) {
-        nonDistant = 0;
+    for (int i=0; i<K; i++) {
         memset(visited, false, sizeof(visited));
-
-        floodfill(cows[i][0], cows[i][1]);
-        
-        result += (k-nonDistant);
+        result += (K-floodfill(cows[i][0], cows[i][1])); // adds number of cows that weren't reached
     }
 
-    fout << result/2 << endl;
+    result /= 2; // double counted all distant pairs
+
+    fout << result << endl;
 }

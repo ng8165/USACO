@@ -1,31 +1,34 @@
 // Subarray Sums II
 // CSES Sorting and Searching: https://cses.fi/problemset/task/1661
 
-#include <iostream>
-#include <map>
+#include <bits/stdc++.h>
 
 using namespace std;
 
 typedef long long ll;
 
+int n, x;
+map<ll, int> m;
+
 int main() {
-    int n, x;
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+
     cin >> n >> x;
 
-    int input[n];
-    for (int i=0; i<n; i++) cin >> input[i];
+    ll result = 0, psum = 0;
 
-    map<ll, int> sumFreq;
-    sumFreq[0] = 1;
-    ll pSum = 0;
-    ll result = 0;
+    for (int i=0; i<n; i++) {
+        int a; cin >> a;
+        psum += a;
 
-    for (int num: input) {
-        pSum += num;
+        if (psum == x)
+            result++;
 
-        result += sumFreq[pSum-x];
-
-        sumFreq[pSum]++;
+        if (m.count(psum-x))
+            result += m[psum-x];
+        
+        m[psum]++;
     }
 
     cout << result << endl;
