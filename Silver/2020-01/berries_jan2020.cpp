@@ -5,48 +5,47 @@
 
 using namespace std;
 
-int n, k;
-int b[1001];
+int N, K;
+int B[1000];
 
-int quantity[1001];
+int check(int maxBucket) {
+    priority_queue<int> trees;
+    for (int i=0; i<N; i++)
+        trees.push(B[i]);
+
+    // elsie's buckets
+    for (int i=0; i<K/2; i++) {
+        int tree = trees.top(); trees.pop();
+        trees.push(max(tree-maxBucket, 0));
+    }
+
+    // bessie's buckets
+    int result = 0;
+
+    for (int i=0; i<K/2; i++) {
+        int tree = trees.top(); trees.pop();
+        result += min(maxBucket, tree);
+        trees.push(max(tree-maxBucket, 0));
+    }
+
+    return result;
+}
 
 int main() {
     ifstream fin("berries.in");
     ofstream fout("berries.out");
 
-    int maxB = 0;
-
-    fin >> n >> k;
-    for (int i=1; i<=n; i++) {
-        fin >> b[i];
-        maxB = max(maxB, b[i]);
+    int maxTree = 0;
+    fin >> N >> K;
+    for (int i=0; i<N; i++) {
+        fin >> B[i];
+        maxTree = max(maxTree, B[i]);
     }
 
     int result = 0;
 
-    for (int bucket=1; bucket<=maxB; bucket++) {
-        memset(quantity, 0, sizeof(quantity));
+    for (int maxBucket=1; maxBucket<=maxTree; maxBucket++)
+        result = max(result, check(maxBucket));
 
-        for (int i=1; i<=n; i++) {
-            quantity[bucket] += b[i] / bucket;
-            quantity[b[i] % bucket]++;
-        }
-
-        int idx = maxB, cnt = k, berries = 0;
-
-        while (idx > 0 && cnt > 0) {
-            if (quantity[idx] > 0) {
-                if (cnt <= k/2) berries += idx;
-                
-                quantity[idx]--;
-                cnt--;
-            }
-
-            if (quantity[idx] == 0) idx--;
-        }
-
-        result = max(result, berries);
-    }
-
-    fout << result << endl;
+    fout << result << "\n";
 }
