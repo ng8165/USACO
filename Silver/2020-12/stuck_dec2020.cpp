@@ -1,46 +1,26 @@
 // Stuck in a Rut
 // USACO Silver December 2020: http://www.usaco.org/index.php?page=viewproblem2&cpid=1064
-// Copied from Bronze version of Stuck in a Rut and modified for Silver
 
 #include <bits/stdc++.h>
-#define x first
-#define y second
 
 using namespace std;
 
-typedef pair<int, int> Location;
-
 struct Cow {
-    Location loc;
-    char dir;
-    int travel = -1; // travel distance until stopped, -1 if Infinity
-    vector<Cow*> stop;
+    int x, y, index;
+    int blame = 0;
+    bool stop = false;
 };
 
-struct Event {
-    Location loc;
-    Cow* cow;
-    Cow* other;
-    int time;
+bool cmpX(const Cow& a, const Cow& b) {
+    return a.x < b.x;
+}
 
-    bool operator<(const Event& other) const {
-        return time < other.time;
-    }
-};
+bool cmpY(const Cow& a, const Cow& b) {
+    return a.y < b.y;
+}
 
 int N;
-Cow cows[1000];
-vector<Event> events;
-set<Location> eaten;
-
-int dfs(vector<Cow*>& v) {
-    int result = v.size();
-
-    for (Cow* c: v)
-        result += dfs(c->stop);
-    
-    return result;
-}
+vector<Cow> north, east;
 
 int main() {
     // input
@@ -49,53 +29,48 @@ int main() {
 
     cin >> N;
     for (int i=0; i<N; i++) {
-        Cow& c = cows[i];
-        cin >> c.dir >> c.loc.x >> c.loc.y;
+        char dir; cin >> dir;
+        Cow c; cin >> c.x >> c.y; c.index = i;
+        
+        // separate cows into north and east
+        if (dir == 'N') north.push_back(c);
+        else east.push_back(c);
     }
 
-    // find intersections
-    for (int i=0; i<N; i++) {
-        for (int j=i+1; j<N; j++) {
-            if (cows[i].dir == cows[j].dir) continue;
+    // sort north cows by x coordinate
+    sort(north.begin(), north.end(), cmpX);
+    sort(east.begin(), east.end(), cmpY);
 
-            Cow *n = &cows[i], *e = &cows[j];
-            if (e->dir == 'N' && n->dir == 'E') swap(n, e);
+    for (Cow& n: north) {
+        if (n.stop) continue;
 
-            Location &ln = n->loc, &le = e->loc;
+        for (Cow& e: east) {
+            if (e.stop) continue;
 
-            if (le.x <= ln.x && le.y >= ln.y) {
-                // east is to the left and up of north, so can intersect
-                Location intersect = {ln.x, le.y};
+            // east cow must be above and to the left of the north cow
+            if (e.x > n.x || e.y < n.y) continue;
 
-                // calculate times
-                int tn = intersect.y - ln.y;
-                int te = intersect.x - le.x;
-                if (tn == te) continue; // if cows intersect at the same time, the intersection doesn't happen
+            // find intersection and times
+            int ix = n.x, iy = e.y;
+            int tn = iy-n.y, te = ix-e.x;
 
-                events.push_back({intersect, n, e, tn});
-                events.push_back({intersect, e, n, te});
+            if (tn == te) continue; // both cows enter at same time so don't stop
+
+            if (tn < te) {
+                // north cow is blamed for stopping east cow
+                n.blame += (e.blame + 1);
+                e.stop = true;
+            } else {
+                // east cow is blamed for stopping north cow
+                e.blame += (n.blame + 1);
+                n.stop = true;
+                break; // skips to next north cow
             }
         }
     }
 
-    // sort by time
-    sort(events.begin(), events.end());
-
-    for (Event& e: events) {
-        if (e.cow->travel > -1)
-            // the cow is already stopped, so the event does not happen
-            continue;
-
-        if (eaten.count(e.loc)) {
-            // this grass has been eaten, so the cow stops
-            e.cow->travel = e.time;
-            e.other->stop.push_back(e.cow);
-        } else {
-            // this grass has not been eaten, so mark it as eaten
-            eaten.insert(e.loc);
-        }
-    }
-
-    for (int i=0; i<N; i++)
-        cout << dfs(cows[i].stop) << "\n";
+    int result[N];
+    for (Cow& c: north) result[c.index] = c.blame;
+    for (Cow& c: east) result[c.index] = c.blame;
+    for (int& r: result) cout << r << "\n";
 }
