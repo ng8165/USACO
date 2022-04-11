@@ -11,26 +11,23 @@ string s;
 int Q;
 int l, r;
 
-int csum[maxLen];
-int osum[maxLen];
-int wsum[maxLen];
-
-int cCount, oCount, wCount;
+int csum[maxLen], osum[maxLen], wsum[maxLen];
 
 void solve() {
     cin >> l >> r;
 
-    cCount = csum[r]-csum[l-1];
-    oCount = osum[r]-osum[l-1];
-    wCount = wsum[r]-wsum[l-1];
+    // determine number of characters in the range
+    // if the numbers are [odd, even, even] or [even, odd, odd], then can be turned to 'C'
+    int c = (csum[r]-csum[l-1])%2;
+    int o = (osum[r]-osum[l-1])%2;
+    int w = (wsum[r]-wsum[l-1])%2;
 
-    cCount %= 2;
-    oCount %= 2;
-    wCount %= 2;
-
-    if (cCount == 1 && oCount == 0 && wCount == 0) cout << "Y";
-    else if (cCount == 0 && oCount == 1 && wCount == 1) cout << "Y";
-    else cout << "N";
+    if (c == 1 && o == 0 && w == 0)
+        cout << "Y";
+    else if (c == 0 && o == 1 && w == 1)
+        cout << "Y";
+    else
+        cout << "N";
 }
 
 int main() {

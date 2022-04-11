@@ -11,24 +11,24 @@ string s;
 string t;
 int Q;
 
-vector<int> idxS[letters];
-vector<int> idxT[letters];
-vector<bitset<letters>> no;
-set<int> forbidden;
+bool isEqual[letters][letters];
 
-void add(int i, int j) {
-    bitset<letters> b;
-    b.set(i);
-    b.set(j);
-    no.push_back(b);
-}
+bool solve() {
+    string query; cin >> query;
+    const int N = query.size();
 
-bitset<letters> make(string str) {
-    bitset<letters> b;
-    for (char& c: str)
-        b.set(c-'a');
-        
-    return b;
+    if (N == 1)
+        return isEqual[query[0]-'a'][query[0]-'a'];
+
+    // if all character pairs in the query are equal, then this query is equal
+    for (int i=0; i<N; i++) {
+        for (int j=i+1; j<N; j++) {
+            if (!isEqual[query[i]-'a'][query[j]-'a'])
+                return false;
+        }
+    }
+
+    return true;
 }
 
 int main() {
@@ -38,81 +38,29 @@ int main() {
     cin >> s;
     cin >> t;
 
-    // create list of all positions that each character is in
-    for (int i=0; i<s.size(); i++)
-        idxS[s[i]-'a'].push_back(i);
-    for (int i=0; i<t.size(); i++)
-        idxT[t[i]-'a'].push_back(i);
-
+    // for all pairs of characters, determine equality in two strings
     for (int i=0; i<letters; i++) {
         for (int j=i; j<letters; j++) {
-            // if same letter, compare how many times they appear in each
-            if (i == j) {
-                if (idxS[i].size() != idxT[j].size())
-                    forbidden.insert(i);
-                
-                continue;
+            string ns, nt;
+
+            for (char& c: s) {
+                if (c == i+'a' || c == j+'a')
+                    ns += c;
             }
 
-            auto &si = idxS[i], &sj = idxS[j];
-            auto &ti = idxT[i], &tj = idxT[j];
-
-            // must have same number of letter 1 and letter 2
-            if (si.size() != ti.size() || sj.size() != tj.size()) {
-                add(i, j);
-                continue;
+            for (char& c: t) {
+                if (c == i+'a' || c == j+'a')
+                    nt += c;
             }
 
-            // for all letter 2, try to insert into letter 1 in both words
-            // if insertion position same for both letters, then ok
-            for (int k=0; k<sj.size(); k++) {
-                int lbi = lower_bound(si.begin(), si.end(), sj[k]) - si.begin();
-                int lbj = lower_bound(ti.begin(), ti.end(), tj[k]) - ti.begin();
-
-                if (lbi != lbj) {
-                    add(i, j);
-                    break;
-                }
-            }
+            isEqual[i][j] = (ns == nt);
         }
     }
 
     cin >> Q;
 
-    for (int i=0; i<Q; i++) {
-        string str; cin >> str;
-
-        if (str.size() == 1) {
-            cout << (forbidden.count(str[0]-'a') ? "N" : "Y");
-            continue;
-        }
-
-        bitset<letters> b = make(str);
-
-        bool ok = true;
-
-        for (int j=0; j<letters; j++) {
-            if (b[j] == 1) {
-                if (forbidden.count(j)) {
-                    cout << "N";
-                    ok = false;
-                    break;
-                }
-            }
-        }
-
-        if (!ok) continue;
-        
-        for (auto& n: no) {
-            if ((b & n) == n) {
-                cout << "N";
-                ok = false;
-                break;
-            }
-        }
-
-        if (ok) cout << "Y";
-    }
-
-    cout << "\n";
+    for (int i=0; i<Q; i++)
+        cout << (solve() ? 'Y' : 'N');
+    
+    cout << '\n';
 }
