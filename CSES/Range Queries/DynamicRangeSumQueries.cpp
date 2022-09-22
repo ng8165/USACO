@@ -1,83 +1,55 @@
 // Dynamic Range Sum Queries
 // CSES Range Queries: https://cses.fi/problemset/task/1648
-// Segment Tree Implementation
+// XJOI Problem 14103: https://xjoi.net/contest/4411/problem/1?locale=en
 
 #include <bits/stdc++.h>
 
 using namespace std;
 
-class SegmentTree {
+class BIT {
+    // Binary Indexed Tree/Fenwick Tree
+    // input array is 1-indexed and all indices should be 1-indexed
+
     typedef long long ll;
 
-    int n; // size of input array
-    int cap; // represents how large the segment tree array should be
-    vector<ll> arr;
+    int n;
+    vector<ll> arr; // BIT (not input array)
 
-    // functions for finding parent, left child, and right child in an array tree format
-    inline int parent(int i) { return i/2; }
-    inline int left(int i) { return 2*i; }
-    inline int right(int i) { return 2*i+1; }
+    // lowest significant bit (rightmost bit that is 1)
+    inline int LSB(int x) { return x & -x; }
 
-    inline int power2ceil(int num) {
-        // returns the smallest power of 2 >= to num
-        return 1 << (int) (ceil(log2(num)));
-    }
+    // calculates sum of elements from 1 to index (inclusive)
+    ll sum(int index) {
+        ll result = 0;
 
-    // build the segment tree
-    void build(vector<int>& input) {
-        // the last "row" on the segment tree in array format starts at cap and ends at cap+n-1
-        for (int i=cap; i<cap+n; i++)
-            arr[i] = input[i-cap];
-
-        // build "up" backwards
-        for (int i=cap-1; i>0; i--)
-            arr[i] = arr[left(i)]+arr[right(i)];
-    }
-
-    ll query(int l, int r, int i, int rl, int rr) {
-        // i represents the array index to examine
-        // rl and rr represent the range of indices that the index represents
-
-        if (rl > rr || i >= 2*cap)
-            return 0;
-
-        if (l <= rl && rr <= r)  {
-            // current range is fully contained in query range
-            return arr[i];
-        } else if ((rl < l && rr < l) || (r < rl && r < rr)) {
-            // current range is not contained in query range
-            return 0;
-        } else {
-            // current range is partially contained in query range
-            int mid = (rl+rr)/2;
-            return query(l, r, left(i), rl, mid) + query(l, r, right(i), mid+1, rr);
+        while (index > 0) {
+            result += arr[index];
+            index -= LSB(index);
         }
+
+        return result;
     }
 
 public:
-    SegmentTree(vector<int>& input) {
-        n = input.size();
-        cap = power2ceil(n);
-        arr.resize(2*cap);
+    BIT(vector<int>& input) {
+        n = input.size()-1;
+        arr.resize(n+1);
 
-        build(input);
+        for (int i=1; i<=n; i++)
+            update(i, input[i]);
     }
 
-    // update an index in the segment tree to a value
-    void update(int index, int value) {
-        index += cap - 1; // change index to index in array tree format
-        int diff = value - arr[index];
-
-        // add difference to self and all parents
-        while (index > 0) {
-            arr[index] += diff;
-            index = parent(index);
+    // increases a value in the BIT
+    void update(int index, int inc) {
+        while (index <= n) {
+            arr[index] += inc;
+            index += LSB(index);
         }
     }
 
-    ll query(int l, int r) {
-        // see overloaded query method
-        return query(l, r, 1, 1, cap);
+    // queries the sum between two elements
+    ll query(int left, int right) {
+        return sum(right) - sum(left-1);
     }
 };
 
@@ -89,21 +61,23 @@ int main() {
     cin.tie(0);
 
     cin >> n >> q;
-    arr.resize(n);
-    for (int& num: arr)
-        cin >> num;
+    arr.resize(n+1);
+    for (int i=1; i<=n; i++)
+        cin >> arr[i];
 
-    SegmentTree st(arr);
+    BIT bit(arr);
 
     for (int i=0; i<q; i++) {
         int type; cin >> type;
 
-        if (type == 2) {
+        if (type == 1) {
             int k, u; cin >> k >> u;
-            cout << st.query(k, u) << "\n";
+            int inc = u-arr[k];
+            arr[k] = u;
+            bit.update(k, inc);
         } else {
             int a, b; cin >> a >> b;
-            st.update(a, b);
+            cout << bit.query(a, b) << "\n";
         }
     }
 }
